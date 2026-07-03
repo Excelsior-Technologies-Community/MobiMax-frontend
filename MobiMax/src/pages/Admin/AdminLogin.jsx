@@ -21,16 +21,16 @@ const AdminLogin = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id, password }),
+        body: JSON.stringify({ email: id, password }),
       });
 
       const data = await response.json();
 
-      if (data.success) {
+      if (data.status === 'success') {
         // Store token/session based on Remember Me
         const storage = rememberMe ? localStorage : sessionStorage;
         storage.setItem('adminToken', data.token);
-        storage.setItem('adminUser', JSON.stringify(data.user));
+        storage.setItem('adminUser', JSON.stringify(data.admin));
         
         // Redirect to dashboard
         navigate('/admin/dashboard');

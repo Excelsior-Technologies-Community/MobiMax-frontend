@@ -36,7 +36,7 @@ const AdminDashboard = () => {
             Welcome back, {adminUser?.name || 'Admin'}. Here's what's happening today.
           </p>
         </div>
-        <button className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center shadow-sm">
+        <button className="bg-[#e26a1b] text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#c95a14] transition-all duration-200 flex items-center shadow-[0_4px_12px_rgba(226,106,27,0.2)]">
           Generate Report
           <ArrowUpRight className="ml-2 h-4 w-4" />
         </button>
@@ -45,12 +45,14 @@ const AdminDashboard = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+          <div key={index} className="bg-white rounded-2xl shadow-[0_2px_20px_-8px_rgba(0,0,0,0.1)] border border-gray-100/80 p-6 hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.15)] transition-all duration-300 transform hover:-translate-y-1">
             <div className="flex items-center justify-between mb-4">
-              <div className="h-12 w-12 rounded-full bg-orange-50 flex items-center justify-center">
+              <div className="h-12 w-12 rounded-2xl bg-orange-50 flex items-center justify-center">
                 <stat.icon className="h-6 w-6 text-[#e26a1b]" />
               </div>
-              <span className={`text-sm font-medium ${stat.trendColor} bg-opacity-10 px-2.5 py-0.5 rounded-full flex items-center`}>
+              <span className={`text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-full flex items-center ${
+                stat.trend.startsWith('+') ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100'
+              }`}>
                 {stat.trend}
               </span>
             </div>
@@ -61,17 +63,19 @@ const AdminDashboard = () => {
       </div>
 
       {/* Recent Activity placeholder */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Recent Activity</h2>
-        <div className="space-y-4">
+      <div className="bg-white rounded-2xl shadow-[0_2px_20px_-8px_rgba(0,0,0,0.1)] border border-gray-100/80 p-6">
+        <h2 className="text-lg font-bold text-gray-900 mb-6">Recent Activity</h2>
+        <div className="space-y-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center p-4 border border-gray-50 rounded-lg bg-gray-50/50">
-              <div className="h-10 w-10 rounded-full bg-gray-200 flex-shrink-0"></div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-900">New partner registration</p>
-                <p className="text-xs text-gray-500">TechStore Ltd. applied for partnership.</p>
+            <div key={i} className="flex items-start group">
+              <div className="relative flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-[#f8f9fb] border border-gray-100 group-hover:bg-[#e26a1b]/10 transition-colors">
+                <Activity className="h-4 w-4 text-gray-400 group-hover:text-[#e26a1b]" />
               </div>
-              <span className="text-xs text-gray-400">2 hours ago</span>
+              <div className="ml-4 flex-1">
+                <p className="text-sm font-semibold text-gray-900">New partner registration</p>
+                <p className="text-sm text-gray-500 mt-0.5">TechStore Ltd. applied for partnership.</p>
+              </div>
+              <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-md">2 hours ago</span>
             </div>
           ))}
         </div>

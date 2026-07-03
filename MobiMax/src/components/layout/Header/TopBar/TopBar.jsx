@@ -1,9 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { LogOut, Settings, LayoutDashboard, ChevronDown } from 'lucide-react';
 
 const TopBar = () => {
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const userDataStr = localStorage.getItem('userData');
+      const partnerDataStr = localStorage.getItem('partnerData');
+
+      if (userDataStr) {
+        setUser(JSON.parse(userDataStr));
+      } else if (partnerDataStr) {
+        setUser(JSON.parse(partnerDataStr));
+      } else {
+        setUser(null);
+      }
+    };
+
+    checkAuth(); // Initial check
+
+    // Listen for custom auth events to update state instantly without reloading
+    window.addEventListener('authChange', checkAuth);
+
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('authChange', checkAuth);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('userData');
+    localStorage.removeItem('partnerData');
+    setUser(null);
+    window.dispatchEvent(new Event('authChange'));
+    // navigate isn't available here since we aren't in a router component directly, so we just let the event update the UI
+    // If we wanted to redirect, we could use navigate if TopBar used useNavigate
+  };
+
+  const getInitial = (name) => name ? name.charAt(0).toUpperCase() : 'U';
 
   return (
     <div className="bg-[#f5f5f5] border-b border-[#e5e5e5] py-2 text-[13px] text-[#666]">
@@ -79,14 +126,73 @@ const TopBar = () => {
 
           <div className="w-[1px] h-[14px] bg-gray-300 mx-2"></div>
 
-          {/* Login */}
-          <Link to="/login" className="flex items-center gap-[6px] cursor-pointer hover:text-[#e26a1b] transition-colors ml-2">
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <span className="text-[13px] font-medium text-gray-600 hover:text-[#e26a1b]">Login</span>
-          </Link>
+          {/* Login / User Profile */}
+          {user ? (
+            <div className="relative flex items-center ml-2" ref={userMenuRef}>
+              <div 
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 py-1 px-2 rounded-lg transition-colors"
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              >
+                <div className="w-8 h-8 rounded-full bg-[#e26a1b] flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                  {getInitial(user.name)}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[13px] font-semibold text-gray-900 leading-tight">
+                    {user.name}
+                  </span>
+                  <span className="text-[11px] text-gray-500 capitalize leading-tight">
+                    {user.role}
+                  </span>
+                </div>
+                <ChevronDown className="w-4 h-4 text-gray-400 ml-1" />
+              </div>
+
+              {/* Dropdown Menu */}
+              {isUserMenuOpen && (
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-gray-100 z-50 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-gray-50">
+                    <p className="text-[14px] font-semibold text-gray-900">{user.name}</p>
+                    <p className="text-[12px] text-gray-500 truncate">{user.email}</p>
+                  </div>
+                  
+                  <div className="py-1">
+                    {user.role === 'partner' && (
+                      <Link to="/partner/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-gray-700 hover:bg-[#fff7f2] hover:text-[#e26a1b] transition-colors" onClick={() => setIsUserMenuOpen(false)}>
+                        <LayoutDashboard className="w-4 h-4" />
+                        Dashboard
+                      </Link>
+                    )}
+                    <Link to="/settings" className="flex items-center gap-3 px-4 py-2.5 text-[14px] text-gray-700 hover:bg-[#fff7f2] hover:text-[#e26a1b] transition-colors" onClick={() => setIsUserMenuOpen(false)}>
+                      <Settings className="w-4 h-4" />
+                      Settings
+                    </Link>
+                  </div>
+
+                  <div className="border-t border-gray-50 py-1">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleLogout();
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-[14px] text-red-600 hover:bg-red-50 transition-colors text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link to="/login" className="flex items-center gap-[6px] cursor-pointer hover:text-[#e26a1b] transition-colors ml-2">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span className="text-[13px] font-medium text-gray-600 hover:text-[#e26a1b]">Login</span>
+            </Link>
+          )}
         </div>
       </div>
     </div>

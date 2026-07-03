@@ -1,8 +1,43 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Briefcase } from 'lucide-react';
 
 const PartnerLogin = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/partners/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        localStorage.setItem('partnerToken', data.token);
+        localStorage.setItem('partnerData', JSON.stringify(data.partner));
+        window.dispatchEvent(new Event('authChange')); // Notify TopBar instantly
+        navigate('/'); // Soft redirect
+      } else {
+        setError(data.message || 'Login failed');
+      }
+    } catch (err) {
+      setError('Cannot connect to the server.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex-grow flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 border-t-4 border-t-[#e26a1b]">
@@ -18,7 +53,13 @@ const PartnerLogin = () => {
           </p>
         </div>
 
-        <form className="space-y-6">
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 text-red-500 border border-red-200 rounded-lg text-sm text-center">
+            {error}
+          </div>
+        )}
+
+        <form className="space-y-6" onSubmit={handleLogin}>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
               Business Email
@@ -33,6 +74,8 @@ const PartnerLogin = () => {
                 type="email"
                 autoComplete="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm transition-colors"
                 placeholder="partner@company.com"
               />
@@ -60,6 +103,8 @@ const PartnerLogin = () => {
                 type="password"
                 autoComplete="current-password"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm transition-colors"
                 placeholder="••••••••"
               />
@@ -69,9 +114,10 @@ const PartnerLogin = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-all duration-200"
+              disabled={isLoading}
+              className={`group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-all duration-200 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
-              Partner Sign in
+              {isLoading ? 'Signing in...' : 'Partner Sign in'}
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
