@@ -1,75 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const HeroSection = () => {
   const [activeSlide, setActiveSlide] = useState(0);
 
+  // Auto-advance slider
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev === 2 ? 0 : prev + 1));
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   const slides = [
     {
       id: 0,
-      bgColor: '#f5f5f5',
+      bgColor: '#f1f2f6',
       pattern: 'https://enovathemes.com/mobimax/wp-content/uploads/revslider/slide_asset2-2.jpg',
       title1: 'Take care',
-      title1Color: '#000000',
-      title2: 'of your tires',
-      title2Color: '#000000',
+      title1Color: '#1e272e',
+      title2: 'Of your tires',
+      title2Color: '#1e272e',
       discount: '22%',
-      discountColor: '#ffcc00',
+      discountColor: '#ffa801',
       offText: 'OFF',
-      offTextColor: '#000000',
-      disclaimerColor: '#616161',
+      offTextColor: '#1e272e',
+      disclaimerColor: '#576574',
       image: 'https://enovathemes.com/mobimax/wp-content/uploads/revslider/slide_asset1.png',
-      imageClass: 'absolute right-[-20px] top-[20px] h-[450px] w-auto object-contain z-10 drop-shadow-2xl pointer-events-none'
+      imageClass: 'absolute right-[-30px] top-[5%] h-[90%] w-auto object-contain z-10 drop-shadow-2xl pointer-events-none'
     },
     {
       id: 1,
-      bgColor: '#e05c0b',
+      bgColor: '#e55039',
       pattern: 'https://enovathemes.com/mobimax/wp-content/uploads/revslider/slide_asset3.jpg',
       title1: 'Ready for',
       title1Color: '#ffffff',
       title2: 'OFF ROAD?',
       title2Color: '#ffffff',
       discount: '18%',
-      discountColor: '#ffcc00',
+      discountColor: '#ffd32a',
       offText: 'OFF',
       offTextColor: '#ffffff',
-      disclaimerColor: '#ffffff',
+      disclaimerColor: '#ffda79',
       image: 'https://enovathemes.com/mobimax/wp-content/uploads/revslider/slide_asset4.png',
-      imageClass: 'absolute right-[10px] top-[20px] h-[450px] w-auto object-contain z-10 drop-shadow-2xl pointer-events-none'
+      imageClass: 'absolute right-[0px] top-[10%] h-[85%] w-auto object-contain z-10 drop-shadow-2xl pointer-events-none'
     },
     {
       id: 2,
-      bgColor: '#ffd800',
+      bgColor: '#ffc048',
       pattern: 'https://enovathemes.com/mobimax/wp-content/uploads/slider_pattern_white-1.png',
       title1: 'Mega Sale',
       title1Color: '#ffffff',
       title2: 'Disks & Pads',
       title2Color: '#ffffff',
       discount: '33%',
-      discountColor: '#000000',
+      discountColor: '#1e272e',
       offText: 'OFF',
       offTextColor: '#ffffff',
       disclaimerColor: '#ffffff',
       image: 'https://enovathemes.com/mobimax/wp-content/uploads/revslider/banner_img_3.png',
-      imageClass: 'absolute right-[-40px] top-[15px] h-[460px] w-auto object-contain z-10 transform -rotate-[12deg] drop-shadow-2xl pointer-events-none'
+      imageClass: 'absolute right-[-40px] top-[5%] h-[95%] w-auto object-contain z-10 transform -rotate-[8deg] drop-shadow-[0_20px_30px_rgba(0,0,0,0.3)] pointer-events-none'
     }
   ];
 
   const current = slides[activeSlide];
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto px-[15px] mt-[20px] mb-12">
-      <div className="flex w-full gap-[20px]">
+    <div className="w-full max-w-[1200px] mx-auto px-[15px] mt-6 mb-16">
+      <div className="flex flex-col md:flex-row w-full gap-6 h-auto md:h-[500px]">
         
         {/* Main Slider (Left) */}
         <div 
-          className="w-2/3 relative overflow-hidden h-[493px] rounded-sm group flex-shrink-0 transition-colors duration-500"
+          className="w-full md:w-2/3 relative overflow-hidden rounded-2xl shadow-xl group flex-shrink-0 transition-colors duration-700 ease-in-out"
           style={{
             backgroundColor: current.bgColor,
           }}
         >
+          {/* Subtle Gradient Overlay for Depth */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent z-0"></div>
+
           {/* Background Pattern */}
           <div 
-            className="absolute inset-0 z-0 opacity-40 mix-blend-multiply transition-opacity duration-500"
+            className="absolute inset-0 z-0 opacity-20 mix-blend-overlay transition-opacity duration-700"
             style={{
               backgroundImage: `url("${current.pattern}")`,
               backgroundSize: 'cover',
@@ -78,62 +89,62 @@ const HeroSection = () => {
           ></div>
 
           {/* Content */}
-          <div className="relative z-20 pl-[50px] pt-[75px] max-w-[55%]">
+          <div className="relative z-20 h-full flex flex-col justify-center pl-12 md:pl-16 max-w-[70%]">
             <h2 
-              className="font-black text-[46px] leading-[1.1] uppercase tracking-wide drop-shadow-sm mb-1 whitespace-nowrap transition-colors duration-500" 
-              style={{ fontFamily: 'Montserrat, sans-serif', color: current.title1Color }}
+              className="font-black text-4xl md:text-5xl uppercase tracking-wider drop-shadow-sm mb-1 whitespace-nowrap transition-colors duration-700" 
+              style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.title1Color }}
             >
               {current.title1}
             </h2>
             <h3 
-              className="font-black text-[31px] leading-[1.1] uppercase drop-shadow-sm mb-1 whitespace-nowrap transition-colors duration-500" 
-              style={{ fontFamily: 'Montserrat, sans-serif', color: current.title2Color }}
+              className="font-extrabold text-2xl md:text-3xl uppercase tracking-wide drop-shadow-sm mb-3 whitespace-nowrap transition-colors duration-700" 
+              style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.title2Color }}
             >
               {current.title2}
             </h3>
             
             <div 
-              className="font-black text-[123px] leading-[1] mb-2 tracking-tighter transition-colors duration-500" 
-              style={{ fontFamily: 'Montserrat, sans-serif', color: current.discountColor }}
+              className="font-black text-8xl md:text-[130px] leading-none mb-1 tracking-tighter transition-colors duration-700 drop-shadow-md" 
+              style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.discountColor }}
             >
               {current.discount}
             </div>
             
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-6 mt-2">
               <span 
-                className="font-black text-[46px] leading-[1] transition-colors duration-500" 
-                style={{ fontFamily: 'Montserrat, sans-serif', color: current.offTextColor }}
+                className="font-black text-4xl md:text-5xl uppercase leading-none transition-colors duration-700" 
+                style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.offTextColor }}
               >
                 {current.offText}
               </span>
-              <button className="bg-[#d52b27] hover:bg-[#212121] transition-colors duration-300 text-white font-bold uppercase px-[34px] py-[12px] rounded-[4px] text-[13px] tracking-wide pointer-events-auto shadow-md">
+              <button className="bg-[#d52b27] hover:bg-[#1e272e] transform hover:-translate-y-1 transition-all duration-300 text-white font-bold uppercase px-8 py-3.5 rounded-lg text-sm tracking-widest pointer-events-auto shadow-lg hover:shadow-xl">
                 Shop Now
               </button>
             </div>
           </div>
           
-          {/* Bottom Text */}
+          {/* Bottom Disclaimer Text */}
           <p 
-            className="absolute bottom-[24px] left-[24px] text-[13px] font-medium leading-[21px] w-[230px] z-20 transition-colors duration-500" 
-            style={{ fontFamily: 'Montserrat, sans-serif', color: current.disclaimerColor }}
+            className="absolute bottom-6 left-12 md:left-16 text-xs md:text-sm font-medium leading-relaxed max-w-[250px] z-20 transition-colors duration-700" 
+            style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.disclaimerColor }}
           >
-            This discount is not valid in conjunction with other offers
+            This discount is not valid in conjunction with other offers.
           </p>
           
           {/* Slider Dots */}
-          <div className="absolute bottom-[20px] left-1/2 -translate-x-1/2 flex gap-[12px] z-30">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-30">
             {slides.map((slide, index) => (
               <div 
                 key={slide.id}
                 onClick={() => setActiveSlide(index)}
-                className={`w-[16px] h-[16px] rounded-full border-[3px] cursor-pointer flex items-center justify-center transition-all duration-300 shadow-sm ${
+                className={`w-4 h-4 rounded-full border-2 cursor-pointer flex items-center justify-center transition-all duration-300 shadow-sm ${
                   activeSlide === index 
-                    ? 'border-white bg-transparent scale-110' 
-                    : 'border-black hover:border-black/70'
+                    ? 'border-white bg-white/20 scale-125' 
+                    : 'border-black/50 hover:border-black/80'
                 }`}
               >
                 {activeSlide === index && (
-                  <div className="w-[6px] h-[6px] rounded-full bg-white"></div>
+                  <div className="w-2 h-2 rounded-full bg-white shadow-sm"></div>
                 )}
               </div>
             ))}
@@ -143,60 +154,70 @@ const HeroSection = () => {
           <img 
             key={current.image}
             src={current.image} 
-            alt="Product" 
-            className={`transition-all duration-700 ease-out animate-fade-in ${current.imageClass}`}
+            alt="Product promotion" 
+            className={`transition-all duration-[800ms] ease-out animate-fade-in ${current.imageClass}`}
           />
         </div>
 
         {/* Right Side Banners */}
-        <div className="w-1/3 flex flex-col gap-[20px] flex-shrink-0">
+        <div className="w-full md:w-1/3 flex flex-col gap-6 flex-shrink-0 h-[500px]">
           
-          {/* Top Banner */}
-          <div 
-            className="flex-1 bg-white relative overflow-hidden flex items-center pl-[40px] rounded-sm group transition-all"
-            style={{
-              backgroundImage: 'url("https://enovathemes.com/mobimax/wp-content/uploads/banner_img_13.jpg")',
-              backgroundSize: 'contain',
-              backgroundPosition: 'right center',
-              backgroundRepeat: 'no-repeat'
-            }}
-          >
-            <div className="relative z-10">
-              <div className="text-[#e26a1b] font-normal text-[32px] leading-[1] mb-2 tracking-wide" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-                EARN
-              </div>
-              <div className="flex items-center mb-6">
-                <span className="text-black font-black text-[42px] leading-[1] mr-2" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          {/* Top Banner (Earn $10) */}
+          <div className="flex-1 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden relative group border border-gray-100 flex items-center">
+            
+            {/* Faded Background Image - Prevents text overlap! */}
+            <div 
+              className="absolute inset-0 z-0 transition-transform duration-700 group-hover:scale-110"
+              style={{
+                backgroundImage: 'url("https://enovathemes.com/mobimax/wp-content/uploads/banner_img_13.jpg")',
+                backgroundSize: 'cover',
+                backgroundPosition: 'right center',
+                WebkitMaskImage: 'linear-gradient(to right, transparent 35%, black 65%)',
+                maskImage: 'linear-gradient(to right, transparent 35%, black 65%)'
+              }}
+            ></div>
+
+            <div className="relative z-10 pl-8 w-[60%]">
+              <h4 className="text-[#e26a1b] font-bold text-sm tracking-widest uppercase mb-1" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                Special Offer
+              </h4>
+              <div className="flex items-center mb-4">
+                <span className="text-gray-900 font-black text-5xl mr-2" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                   $10
                 </span>
-                <span className="text-[#616161] font-semibold text-[11px] uppercase leading-[1.2] mt-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                <span className="text-gray-500 font-bold text-xs uppercase leading-tight" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                   Gift<br/>Card
                 </span>
               </div>
-              <button className="bg-[#ffcc00] hover:bg-[#e26a1b] hover:text-white transition-colors duration-300 text-black font-bold uppercase px-[26px] py-[10px] rounded-[3px] text-[12px]">
-                Shop Now
+              <button className="bg-[#ffcc00] hover:bg-[#e26a1b] hover:text-white transform group-hover:-translate-y-0.5 transition-all duration-300 text-black font-bold uppercase px-6 py-2.5 rounded-md text-xs shadow-sm">
+                Earn Now
               </button>
             </div>
           </div>
           
-          {/* Bottom Banner */}
-          <div 
-            className="flex-1 bg-[#ffd800] relative overflow-hidden flex items-center pl-[40px] rounded-sm group transition-all"
-            style={{
-              backgroundImage: 'url("https://enovathemes.com/mobimax/wp-content/uploads/banner_img_1.jpg")',
-              backgroundSize: 'cover',
-              backgroundPosition: 'right center',
-              backgroundRepeat: 'no-repeat'
-            }}
-          >
-            <div className="relative z-10 pt-[20px]">
-              <div className="text-black font-bold text-[14px] uppercase mb-1 tracking-wide" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+          {/* Bottom Banner (Buy 1 Get 1) */}
+          <div className="flex-1 bg-[#ffd800] rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden relative group border border-[#ffd800]/50 flex items-center">
+            
+            {/* Faded Background Image - Prevents text overlap! */}
+            <div 
+              className="absolute inset-0 z-0 transition-transform duration-700 group-hover:scale-110"
+              style={{
+                backgroundImage: 'url("https://enovathemes.com/mobimax/wp-content/uploads/banner_img_1.jpg")',
+                backgroundSize: 'cover',
+                backgroundPosition: 'right center',
+                WebkitMaskImage: 'linear-gradient(to right, transparent 35%, black 65%)',
+                maskImage: 'linear-gradient(to right, transparent 35%, black 65%)'
+              }}
+            ></div>
+
+            <div className="relative z-10 pl-8 w-[60%]">
+              <h4 className="text-gray-900 font-extrabold text-sm tracking-widest uppercase mb-1" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                 Buy 1 Get 1
-              </div>
-              <div className="text-[#d52b27] font-black text-[42px] leading-[1] uppercase mb-[26px]" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              </h4>
+              <div className="text-[#d52b27] font-black text-[54px] leading-none uppercase drop-shadow-sm mb-5" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                 Free
               </div>
-              <button className="bg-white hover:bg-black hover:text-white transition-colors duration-300 text-black font-bold uppercase px-[26px] py-[10px] rounded-[3px] text-[12px]">
+              <button className="bg-white hover:bg-gray-900 hover:text-white transform group-hover:-translate-y-0.5 transition-all duration-300 text-black font-bold uppercase px-6 py-2.5 rounded-md text-xs shadow-sm">
                 Shop Now
               </button>
             </div>
