@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const TopBar = () => {
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
@@ -79,13 +80,13 @@ const TopBar = () => {
           <div className="w-[1px] h-[14px] bg-gray-300 mx-2"></div>
 
           {/* Login */}
-          <div className="flex items-center gap-[6px] cursor-pointer hover:text-[#e26a1b] transition-colors ml-2">
+          <Link to="/login" className="flex items-center gap-[6px] cursor-pointer hover:text-[#e26a1b] transition-colors ml-2">
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
             <span className="text-[13px] font-medium text-gray-600 hover:text-[#e26a1b]">Login</span>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

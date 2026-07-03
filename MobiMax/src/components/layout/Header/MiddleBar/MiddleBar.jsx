@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const MiddleBar = () => {
   return (
@@ -6,13 +7,13 @@ const MiddleBar = () => {
       <div className="max-w-[1200px] mx-auto flex justify-between items-center px-[15px]">
         {/* Logo */}
         <div className="flex-shrink-0">
-          <a href="#">
+          <Link to="/">
             <img 
               src="https://enovathemes.com/mobimax/wp-content/uploads/logo-retina.png" 
               alt="MobiMax" 
               className="h-8 object-contain"
             />
-          </a>
+          </Link>
         </div>
 
         {/* Search Bar */}
