@@ -1,6 +1,7 @@
 import TopBar from './components/TopBar/TopBar';
 import MiddleBar from './components/MiddleBar/MiddleBar';
 import BottomBar from './components/BottomBar/BottomBar';
+import HeroSection from './components/HeroSection/HeroSection';
 
 export default function App() {
   return (
@@ -8,6 +9,7 @@ export default function App() {
       <TopBar />
       <MiddleBar />
       <BottomBar />
+      <HeroSection />
     </div>
   );
 }
