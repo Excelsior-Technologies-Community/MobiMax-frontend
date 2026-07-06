@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Settings, LogOut, Search, Bell, ChevronDown, ChevronUp } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, Search, Bell, ChevronDown, ChevronUp, Image } from 'lucide-react';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -72,6 +72,14 @@ const AdminLayout = () => {
                 </div>
               </div>
             </div>
+
+            <Link 
+              to="/admin/advertisements" 
+              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/advertisements' ? 'bg-[#1C212D] text-white' : 'text-gray-400 hover:bg-[#1C212D] hover:text-white'}`}
+            >
+              <Image className="h-5 w-5 mr-3.5" />
+              Advertisements
+            </Link>
 
             <Link 
               to="/settings" 

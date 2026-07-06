@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, XCircle, Clock, Users } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Users, Trash2 } from 'lucide-react';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:5000');
 
 const AdminPartners = () => {
   const [partnersList, setPartnersList] = useState([]);
@@ -15,6 +18,25 @@ const AdminPartners = () => {
       }
     };
     fetchPartners();
+
+    // Socket.io Event Listeners
+    socket.on('partner_registered', (newPartner) => {
+      setPartnersList((prev) => [newPartner, ...prev]);
+    });
+
+    socket.on('partner_status_updated', ({ id, status }) => {
+      setPartnersList((prev) => prev.map(p => p.id === id ? { ...p, status } : p));
+    });
+
+    socket.on('partner_deleted', ({ id }) => {
+      setPartnersList((prev) => prev.filter(p => p.id !== id));
+    });
+
+    return () => {
+      socket.off('partner_registered');
+      socket.off('partner_status_updated');
+      socket.off('partner_deleted');
+    };
   }, []);
 
   const updatePartnerStatus = async (id, newStatus) => {
@@ -29,6 +51,23 @@ const AdminPartners = () => {
       }
     } catch (err) {
       console.error('Failed to update partner status', err);
+    }
+  };
+
+  const deletePartner = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this partner? This action cannot be undone.')) return;
+    
+    try {
+      const res = await fetch(`http://localhost:5000/api/admin/partners/${id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setPartnersList(partnersList.filter(p => p.id !== id));
+      } else {
+        alert('Failed to delete partner');
+      }
+    } catch (err) {
+      console.error('Failed to delete partner', err);
     }
   };
 
@@ -95,7 +134,7 @@ const AdminPartners = () => {
                           </button>
                         )}
                         {p.status === 'active' && (
-                          <button onClick={() => updatePartnerStatus(p.id, 'suspended')} className="text-xs font-semibold text-red-600 hover:text-white border border-red-200 hover:bg-red-500 hover:border-red-500 px-4 py-2 rounded-lg transition-all duration-200 shadow-sm">
+                          <button onClick={() => updatePartnerStatus(p.id, 'suspended')} className="text-xs font-semibold text-orange-600 hover:text-white border border-orange-200 hover:bg-orange-500 hover:border-orange-500 px-4 py-2 rounded-lg transition-all duration-200 shadow-sm">
                             Suspend
                           </button>
                         )}
@@ -104,6 +143,13 @@ const AdminPartners = () => {
                             Activate
                           </button>
                         )}
+                        <button 
+                          onClick={() => deletePartner(p.id)} 
+                          title="Delete Partner"
+                          className="flex items-center justify-center w-8 h-8 rounded-lg text-red-500 hover:text-white border border-red-100 hover:bg-red-500 hover:border-red-500 transition-all duration-200 shadow-sm"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>

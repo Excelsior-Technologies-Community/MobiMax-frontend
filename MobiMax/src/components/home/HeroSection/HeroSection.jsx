@@ -3,15 +3,8 @@ import React, { useState, useEffect } from 'react';
 const HeroSection = () => {
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // Auto-advance slider
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev === 2 ? 0 : prev + 1));
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const slides = [
+  // Default fallback slides
+  const defaultSlides = [
     {
       id: 0,
       bgColor: '#f1f2f6',
@@ -26,7 +19,8 @@ const HeroSection = () => {
       offTextColor: '#1e272e',
       disclaimerColor: '#576574',
       image: 'https://enovathemes.com/mobimax/wp-content/uploads/revslider/slide_asset1.png',
-      imageClass: 'absolute right-[-30px] top-[5%] h-[90%] w-auto object-contain z-10 drop-shadow-2xl pointer-events-none'
+      imageClass: 'absolute right-[-30px] top-[5%] h-[90%] w-auto object-contain z-10 drop-shadow-2xl pointer-events-none',
+      isDefault: true
     },
     {
       id: 1,
@@ -42,7 +36,8 @@ const HeroSection = () => {
       offTextColor: '#ffffff',
       disclaimerColor: '#ffda79',
       image: 'https://enovathemes.com/mobimax/wp-content/uploads/revslider/slide_asset4.png',
-      imageClass: 'absolute right-[0px] top-[10%] h-[85%] w-auto object-contain z-10 drop-shadow-2xl pointer-events-none'
+      imageClass: 'absolute right-[0px] top-[10%] h-[85%] w-auto object-contain z-10 drop-shadow-2xl pointer-events-none',
+      isDefault: true
     },
     {
       id: 2,
@@ -58,11 +53,42 @@ const HeroSection = () => {
       offTextColor: '#ffffff',
       disclaimerColor: '#ffffff',
       image: 'https://enovathemes.com/mobimax/wp-content/uploads/revslider/banner_img_3.png',
-      imageClass: 'absolute right-[-40px] top-[5%] h-[95%] w-auto object-contain z-10 transform -rotate-[8deg] drop-shadow-[0_20px_30px_rgba(0,0,0,0.3)] pointer-events-none'
+      imageClass: 'absolute right-[-40px] top-[5%] h-[95%] w-auto object-contain z-10 transform -rotate-[8deg] drop-shadow-[0_20px_30px_rgba(0,0,0,0.3)] pointer-events-none',
+      isDefault: true
     }
   ];
 
-  const current = slides[activeSlide];
+  const [duration, setDuration] = useState(5000);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/public/advertisements');
+        const data = await res.json();
+        if (data.status === 'success' && data.data.settings) {
+          if (data.data.settings.duration) {
+            // Enforce a minimum duration of 2000ms (2 seconds) to prevent rapid re-rendering
+            const parsedDuration = parseInt(data.data.settings.duration);
+            setDuration(parsedDuration < 2000 ? 5000 : parsedDuration);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching settings for hero slider:', error);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  // Auto-advance slider
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev === defaultSlides.length - 1 ? 0 : prev + 1));
+    }, duration);
+    
+    return () => clearInterval(timer);
+  }, [defaultSlides.length, duration]);
+
+  const current = defaultSlides[activeSlide];
 
   return (
     <div className="w-full max-w-[1200px] mx-auto px-[15px] mt-6 mb-16">
@@ -89,35 +115,39 @@ const HeroSection = () => {
           ></div>
 
           {/* Content */}
-          <div className="relative z-20 h-full flex flex-col justify-center pl-12 md:pl-16 max-w-[70%]">
-            <h2 
-              className="font-black text-4xl md:text-5xl uppercase tracking-wider drop-shadow-sm mb-1 whitespace-nowrap transition-colors duration-700" 
-              style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.title1Color }}
-            >
-              {current.title1}
-            </h2>
-            <h3 
-              className="font-extrabold text-2xl md:text-3xl uppercase tracking-wide drop-shadow-sm mb-3 whitespace-nowrap transition-colors duration-700" 
-              style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.title2Color }}
-            >
-              {current.title2}
-            </h3>
-            
-            <div 
-              className="font-black text-8xl md:text-[130px] leading-none mb-1 tracking-tighter transition-colors duration-700 drop-shadow-md" 
-              style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.discountColor }}
-            >
-              {current.discount}
+          <div className="relative z-30 h-full flex flex-col justify-center pl-8 md:pl-12 lg:pl-16 max-w-[60%]">
+            <div className="mb-3">
+              <h2 
+                className="font-black text-4xl md:text-5xl uppercase tracking-wider drop-shadow-sm leading-tight transition-colors duration-700" 
+                style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.title1Color }}
+              >
+                {current.title1}
+              </h2>
+              <h3 
+                className="font-extrabold text-2xl md:text-3xl uppercase tracking-wide drop-shadow-sm transition-colors duration-700" 
+                style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.title2Color }}
+              >
+                {current.title2}
+              </h3>
             </div>
             
-            <div className="flex items-center gap-6 mt-2">
+            <div className="mb-3">
               <span 
-                className="font-black text-4xl md:text-5xl uppercase leading-none transition-colors duration-700" 
+                className="font-black text-7xl md:text-[110px] lg:text-[130px] leading-[0.8] tracking-tighter transition-colors duration-700 drop-shadow-md block" 
+                style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.discountColor }}
+              >
+                {current.discount}
+              </span>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-1">
+              <span 
+                className="font-black text-4xl md:text-5xl uppercase leading-none transition-colors duration-700 drop-shadow-sm" 
                 style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.offTextColor }}
               >
                 {current.offText}
               </span>
-              <button className="bg-[#d52b27] hover:bg-[#1e272e] transform hover:-translate-y-1 transition-all duration-300 text-white font-bold uppercase px-8 py-3.5 rounded-lg text-sm tracking-widest pointer-events-auto shadow-lg hover:shadow-xl">
+              <button className="bg-[#d52b27] hover:bg-[#1e272e] transform hover:-translate-y-1 transition-all duration-300 text-white font-bold uppercase px-6 py-3 md:px-8 md:py-3.5 rounded-lg text-xs md:text-sm tracking-[0.15em] shadow-xl relative z-40 pointer-events-auto">
                 Shop Now
               </button>
             </div>
@@ -125,30 +155,11 @@ const HeroSection = () => {
           
           {/* Bottom Disclaimer Text */}
           <p 
-            className="absolute bottom-6 left-12 md:left-16 text-xs md:text-sm font-medium leading-relaxed max-w-[250px] z-20 transition-colors duration-700" 
+            className="absolute bottom-8 left-12 md:left-20 text-xs md:text-sm font-medium leading-relaxed max-w-[300px] z-20 transition-colors duration-700 opacity-80" 
             style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.disclaimerColor }}
           >
             This discount is not valid in conjunction with other offers.
           </p>
-          
-          {/* Slider Dots */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-30">
-            {slides.map((slide, index) => (
-              <div 
-                key={slide.id}
-                onClick={() => setActiveSlide(index)}
-                className={`w-4 h-4 rounded-full border-2 cursor-pointer flex items-center justify-center transition-all duration-300 shadow-sm ${
-                  activeSlide === index 
-                    ? 'border-white bg-white/20 scale-125' 
-                    : 'border-black/50 hover:border-black/80'
-                }`}
-              >
-                {activeSlide === index && (
-                  <div className="w-2 h-2 rounded-full bg-white shadow-sm"></div>
-                )}
-              </div>
-            ))}
-          </div>
 
           {/* Product Image */}
           <img 
@@ -157,6 +168,28 @@ const HeroSection = () => {
             alt="Product promotion" 
             className={`transition-all duration-[800ms] ease-out animate-fade-in ${current.imageClass}`}
           />
+          
+          {/* Slider Dots */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 z-30">
+            {defaultSlides.map((slide, index) => (
+              <div 
+                key={index}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveSlide(index);
+                }}
+                className={`w-4 h-4 rounded-full border-2 cursor-pointer flex items-center justify-center transition-all duration-300 shadow-sm ${
+                  activeSlide === index 
+                    ? 'border-white bg-white/40 scale-125' 
+                    : 'border-white/50 hover:border-white/80'
+                }`}
+              >
+                {activeSlide === index && (
+                  <div className="w-2 h-2 rounded-full bg-white shadow-sm"></div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Right Side Banners */}
