@@ -20,16 +20,8 @@ const PromoPopup = () => {
             return;
           }
 
-          // Check frequency
-          const freq = apiSettings.popup_frequency || 'session';
-          if (freq === 'session') {
-            if (sessionStorage.getItem('promo_seen')) return;
-          } else if (freq === 'daily') {
-            const lastSeen = localStorage.getItem('promo_seen_date');
-            const today = new Date().toDateString();
-            if (lastSeen === today) return;
-          }
-          // if 'always', it will proceed
+          // Frequency check removed so the popup appears on every page reload
+
 
           if (data.data.advertisements && data.data.advertisements.length > 0) {
             let fetchedAds = data.data.advertisements;
@@ -58,15 +50,6 @@ const PromoPopup = () => {
 
   const handleClose = () => {
     setIsOpen(false);
-    
-    if (settings) {
-      const freq = settings.popup_frequency || 'session';
-      if (freq === 'session') {
-        sessionStorage.setItem('promo_seen', 'true');
-      } else if (freq === 'daily') {
-        localStorage.setItem('promo_seen_date', new Date().toDateString());
-      }
-    }
   };
 
   if (!isOpen || !ad) return null;

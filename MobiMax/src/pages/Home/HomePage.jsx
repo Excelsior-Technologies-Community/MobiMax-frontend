@@ -4,6 +4,8 @@ import PromoPopup from '../../components/home/HeroSection/PromoPopup';
 import FeaturesBar from '../../components/home/FeaturesBar/FeaturesBar';
 import PopularParts from '../../components/home/PopularParts/PopularParts';
 
+import ShopByMake from '../../components/home/ShopByMake/ShopByMake';
+
 const HomePage = () => {
   return (
     <main className="flex-grow">
@@ -11,6 +13,7 @@ const HomePage = () => {
       <HeroSection />
       <FeaturesBar />
       <PopularParts />
+      <ShopByMake />
     </main>
   );
 };

@@ -87,7 +87,7 @@ const PopularParts = () => {
   ];
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto px-[15px] mb-24 relative z-10">
+    <div className="w-full max-w-[1200px] mx-auto px-[15px] mb-12 relative z-10">
       
       {/* Section Header */}
       <div className="mb-10 pl-4 border-l-4 border-[#e26a1b]">
