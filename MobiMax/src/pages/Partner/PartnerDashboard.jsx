@@ -3,13 +3,55 @@ import { ShoppingBag, DollarSign, Star, TrendingUp, ArrowUpRight, Activity, Cloc
 
 const PartnerDashboard = () => {
   const [partnerUser, setPartnerUser] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const userStr = localStorage.getItem('partnerData');
+    const token = localStorage.getItem('partnerToken'); // Assuming token is stored here or similar
+    
     if (userStr) {
       setPartnerUser(JSON.parse(userStr));
     }
+
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/partner/dashboard-stats', {
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : ''
+          }
+        });
+        const result = await response.json();
+        if (result.status === 'success') {
+          setStats(result.data);
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStats();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#e26a1b]"></div>
+      </div>
+    );
+  }
+
+  // Fallback defaults if fetch fails
+  const displayStats = stats || {
+    todayEarnings: '0.00',
+    earningsGrowth: 0,
+    activeOrders: 0,
+    newOrdersCount: 0,
+    rating: '0.0',
+    recentActivity: []
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6 max-w-7xl mx-auto">
@@ -22,7 +64,7 @@ const PartnerDashboard = () => {
             Ready for a busy day, <br/><span className="text-[#e26a1b]">{partnerUser?.name?.split(' ')[0] || 'Partner'}</span>?
           </h2>
           <p className="text-gray-500 mt-4 text-base font-medium max-w-md">
-            Your kitchen is online. You have <strong className="text-gray-900">12 active orders</strong> right now. Keep up the great work!
+            Your kitchen is online. You have <strong className="text-gray-900">{displayStats.activeOrders} active orders</strong> right now. Keep up the great work!
           </p>
         </div>
         <div className="relative z-10 mt-8 flex flex-wrap gap-4">
@@ -46,9 +88,11 @@ const PartnerDashboard = () => {
           </span>
         </div>
         <div className="relative z-10 mt-12">
-          <p className="text-5xl font-black tracking-tighter">£342<span className="text-3xl text-white/70">.50</span></p>
+          <p className="text-5xl font-black tracking-tighter">
+            £{displayStats.todayEarnings.split('.')[0]}<span className="text-3xl text-white/70">.{displayStats.todayEarnings.split('.')[1] || '00'}</span>
+          </p>
           <div className="flex items-center mt-3 text-emerald-100 font-bold text-sm bg-black/10 w-fit px-3 py-1 rounded-full backdrop-blur-md">
-            <TrendingUp className="w-4 h-4 mr-1.5" /> +14.5% vs yesterday
+            <TrendingUp className="w-4 h-4 mr-1.5" /> +{displayStats.earningsGrowth}% vs yesterday
           </div>
         </div>
       </div>
@@ -59,11 +103,11 @@ const PartnerDashboard = () => {
           <div className="h-12 w-12 rounded-[18px] bg-[#FFF2EB] flex items-center justify-center text-[#e26a1b]">
             <ShoppingBag className="h-6 w-6" />
           </div>
-          <span className="bg-orange-50 text-[#e26a1b] px-2.5 py-1 rounded-full text-xs font-bold">+2 New</span>
+          <span className="bg-orange-50 text-[#e26a1b] px-2.5 py-1 rounded-full text-xs font-bold">+{displayStats.newOrdersCount} New</span>
         </div>
         <div className="mt-8">
           <p className="text-gray-500 font-bold text-sm uppercase tracking-wider mb-1">Active Orders</p>
-          <p className="text-5xl font-black text-gray-900 tracking-tighter">12</p>
+          <p className="text-5xl font-black text-gray-900 tracking-tighter">{displayStats.activeOrders}</p>
         </div>
       </div>
 
@@ -76,7 +120,7 @@ const PartnerDashboard = () => {
         </div>
         <div className="mt-8">
           <p className="text-gray-500 font-bold text-sm uppercase tracking-wider mb-1">Rating</p>
-          <p className="text-5xl font-black text-gray-900 tracking-tighter">4.8</p>
+          <p className="text-5xl font-black text-gray-900 tracking-tighter">{displayStats.rating}</p>
         </div>
       </div>
 
@@ -88,27 +132,24 @@ const PartnerDashboard = () => {
         </div>
         <div className="flex-1 p-8 pt-2 overflow-y-auto">
           <div className="space-y-6">
-            <div className="flex gap-4">
-              <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 z-10">
-                <Clock className="w-5 h-5 text-[#e26a1b]" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-gray-900">New Order #8924</p>
-                <p className="text-sm text-gray-500 font-medium">Spicy Chicken Wrap, Fries x2</p>
-                <p className="text-xs text-gray-400 font-medium mt-1">2 mins ago</p>
-              </div>
-            </div>
-            
-            <div className="flex gap-4">
-              <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 z-10">
-                <CheckCircle className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-gray-900">Order #8923 Completed</p>
-                <p className="text-sm text-gray-500 font-medium">Picked up by rider</p>
-                <p className="text-xs text-gray-400 font-medium mt-1">15 mins ago</p>
-              </div>
-            </div>
+            {displayStats.recentActivity && displayStats.recentActivity.length > 0 ? (
+              displayStats.recentActivity.map((activity) => (
+                <div key={activity.id} className="flex gap-4">
+                  <div className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${
+                    activity.type === 'completed' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-[#e26a1b]'
+                  }`}>
+                    {activity.type === 'completed' ? <CheckCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">{activity.title}</p>
+                    <p className="text-sm text-gray-500 font-medium">{activity.description}</p>
+                    <p className="text-xs text-gray-400 font-medium mt-1">{activity.time}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-sm">No recent activity.</p>
+            )}
           </div>
         </div>
       </div>
