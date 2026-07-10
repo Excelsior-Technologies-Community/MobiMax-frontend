@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import Suspended from '../../pages/Auth/Suspended';
 
-const socket = io('http://localhost:5000');
+const socket = io('http://localhost:5001');
 
 const SessionManager = ({ children }) => {
   const [isSuspendedLocally, setIsSuspendedLocally] = useState(false);

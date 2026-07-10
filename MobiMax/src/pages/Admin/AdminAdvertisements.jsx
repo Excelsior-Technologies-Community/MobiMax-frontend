@@ -50,7 +50,7 @@ const AdminAdvertisements = () => {
     formData.append('image', file);
 
     try {
-      const response = await fetch('http://localhost:5000/api/admin/upload', {
+      const response = await fetch('http://localhost:5001/api/admin/upload', {
         method: 'POST',
         body: formData,
       });
@@ -76,8 +76,8 @@ const AdminAdvertisements = () => {
     setIsLoading(true);
     try {
       const [adsRes, settingsRes] = await Promise.all([
-        fetch('http://localhost:5000/api/admin/advertisements'),
-        fetch('http://localhost:5000/api/admin/settings')
+        fetch('http://localhost:5001/api/admin/advertisements'),
+        fetch('http://localhost:5001/api/admin/settings')
       ]);
 
       const adsData = await adsRes.json();
@@ -102,7 +102,7 @@ const AdminAdvertisements = () => {
   const saveSettings = async () => {
     setIsSavingSettings(true);
     try {
-      await fetch('http://localhost:5000/api/admin/settings', {
+      await fetch('http://localhost:5001/api/admin/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ settings }),
@@ -119,7 +119,7 @@ const AdminAdvertisements = () => {
     if (!newAdUrl) return;
 
     try {
-      const res = await fetch('http://localhost:5000/api/admin/advertisements', {
+      const res = await fetch('http://localhost:5001/api/admin/advertisements', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image_url: newAdUrl, link_url: newAdLink, sort_order: advertisements.length }),
@@ -139,7 +139,7 @@ const AdminAdvertisements = () => {
   const toggleAdStatus = async (id, currentStatus) => {
     try {
       const newStatus = currentStatus ? 0 : 1;
-      await fetch(`http://localhost:5000/api/admin/advertisements/${id}/status`, {
+      await fetch(`http://localhost:5001/api/admin/advertisements/${id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_active: newStatus }),
@@ -153,7 +153,7 @@ const AdminAdvertisements = () => {
   const deleteAd = async (id) => {
     if (!window.confirm('Are you sure you want to delete this advertisement?')) return;
     try {
-      await fetch(`http://localhost:5000/api/admin/advertisements/${id}`, { method: 'DELETE' });
+      await fetch(`http://localhost:5001/api/admin/advertisements/${id}`, { method: 'DELETE' });
       setAdvertisements(advertisements.filter(ad => ad.id !== id));
     } catch (error) {
       console.error('Error deleting ad:', error);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle, XCircle, Users, Trash2 } from 'lucide-react';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const socket = io('http://localhost:5001');
 
 const AdminUsers = () => {
   const [usersList, setUsersList] = useState([]);
@@ -10,7 +10,7 @@ const AdminUsers = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/admin/users');
+        const res = await fetch('http://localhost:5001/api/admin/users');
         const data = await res.json();
         if (data.status === 'success') setUsersList(data.data);
       } catch (err) {
@@ -41,7 +41,7 @@ const AdminUsers = () => {
 
   const updateUserStatus = async (id, newStatus) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/users/${id}/status`, {
+      const res = await fetch(`http://localhost:5001/api/admin/users/${id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -58,7 +58,7 @@ const AdminUsers = () => {
     if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
     
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
+      const res = await fetch(`http://localhost:5001/api/admin/users/${id}`, {
         method: 'DELETE',
       });
       if (res.ok) {

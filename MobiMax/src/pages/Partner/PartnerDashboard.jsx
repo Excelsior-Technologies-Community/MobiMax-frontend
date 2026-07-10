@@ -16,7 +16,7 @@ const PartnerDashboard = () => {
 
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/partner/dashboard-stats', {
+        const response = await fetch('http://localhost:5001/api/partner/dashboard-stats', {
           headers: {
             'Authorization': token ? `Bearer ${token}` : ''
           }

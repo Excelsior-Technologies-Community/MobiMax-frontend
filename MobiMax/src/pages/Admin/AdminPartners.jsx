@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle, XCircle, Clock, Users, Trash2 } from 'lucide-react';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const socket = io('http://localhost:5001');
 
 const AdminPartners = () => {
   const [partnersList, setPartnersList] = useState([]);
@@ -10,7 +10,7 @@ const AdminPartners = () => {
   useEffect(() => {
     const fetchPartners = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/admin/partners');
+        const res = await fetch('http://localhost:5001/api/admin/partners');
         const data = await res.json();
         if (data.status === 'success') setPartnersList(data.data);
       } catch (err) {
@@ -41,7 +41,7 @@ const AdminPartners = () => {
 
   const updatePartnerStatus = async (id, newStatus) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/partners/${id}/status`, {
+      const res = await fetch(`http://localhost:5001/api/admin/partners/${id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -58,7 +58,7 @@ const AdminPartners = () => {
     if (!window.confirm('Are you sure you want to delete this partner? This action cannot be undone.')) return;
     
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/partners/${id}`, {
+      const res = await fetch(`http://localhost:5001/api/admin/partners/${id}`, {
         method: 'DELETE',
       });
       if (res.ok) {

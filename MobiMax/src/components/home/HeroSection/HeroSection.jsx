@@ -63,7 +63,7 @@ const HeroSection = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/public/advertisements');
+        const res = await fetch('http://localhost:5001/api/public/advertisements');
         const data = await res.json();
         if (data.status === 'success' && data.data.settings) {
           if (data.data.settings.duration) {

@@ -30,8 +30,8 @@ const Login = () => {
 
     const isPartner = activeTab === 'partner';
     const endpoint = isPartner 
-      ? 'http://localhost:5000/api/partners/login' 
-      : 'http://localhost:5000/api/users/login';
+      ? 'http://localhost:5001/api/partners/login' 
+      : 'http://localhost:5001/api/users/login';
 
     try {
       const response = await fetch(endpoint, {

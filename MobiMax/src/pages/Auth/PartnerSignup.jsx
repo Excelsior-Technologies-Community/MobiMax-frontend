@@ -18,7 +18,7 @@ const PartnerSignup = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/partners/signup', {
+      const response = await fetch('http://localhost:5001/api/partners/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company, name, email, phone, password }),
