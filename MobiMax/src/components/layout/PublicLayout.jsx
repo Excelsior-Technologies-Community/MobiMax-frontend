@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import TopBar from './Header/TopBar/TopBar';
 import MiddleBar from './Header/MiddleBar/MiddleBar';
 import BottomBar from './Header/BottomBar/BottomBar';
+import Footer from './Footer/Footer';
 
 const PublicLayout = () => {
   return (
@@ -11,6 +12,7 @@ const PublicLayout = () => {
       <MiddleBar />
       <BottomBar />
       <Outlet />
+      <Footer />
     </div>
   );
 };

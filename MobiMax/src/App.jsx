@@ -10,6 +10,7 @@ import UserSignup from './pages/Auth/UserSignup';
 import PartnerSignup from './pages/Auth/PartnerSignup';
 import ForgotPassword from './pages/Auth/ForgotPassword';
 import ResetPassword from './pages/Auth/ResetPassword';
+import ContactUs from './pages/ContactUs/ContactUs';
 
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="/partner/signup" element={<PartnerSignup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/contact" element={<ContactUs />} />
           </Route>
         
         <Route path="/admin" element={<AdminLayout />}>

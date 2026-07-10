@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { shopDepartments } from '../../../../data/shopDepartments';
 
 const BottomBar = () => {
@@ -156,7 +157,7 @@ const BottomBar = () => {
               {/* Dropdown Menu */}
               <div className="absolute top-full left-0 mt-[14px] w-[210px] bg-white shadow-[0_5px_15px_rgba(0,0,0,0.1)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-3 border border-[#f0f0f0]">
                 <a href="#" className="block px-7 py-2.5 text-[#666] hover:text-[#e26a1b] text-[15px] transition-colors">About us</a>
-                <a href="#" className="block px-7 py-2.5 text-[#666] hover:text-[#e26a1b] text-[15px] transition-colors">Contact us</a>
+                <Link to="/contact" className="block px-7 py-2.5 text-[#666] hover:text-[#e26a1b] text-[15px] transition-colors">Contact us</Link>
               </div>
             </div>
 
