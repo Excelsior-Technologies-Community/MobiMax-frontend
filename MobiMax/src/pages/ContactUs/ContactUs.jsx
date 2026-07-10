@@ -32,6 +32,44 @@ const branches = [
 
 const ContactUs = () => {
   const [focusedInput, setFocusedInput] = useState(null);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [status, setStatus] = useState('idle'); // idle, loading, success, error
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus('loading');
+    setErrorMsg('');
+    
+    try {
+      const response = await fetch('http://localhost:5001/api/public/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setStatus('success');
+        setFormData({ name: '', email: '', message: '' });
+        setTimeout(() => setStatus('idle'), 5000);
+      } else {
+        setStatus('error');
+        setErrorMsg(data.message || 'Something went wrong. Please try again.');
+      }
+    } catch (err) {
+      setStatus('error');
+      setErrorMsg('Failed to connect to the server. Please try again later.');
+    }
+  };
 
   return (
     <main className="flex-grow bg-[#fafafa] min-h-screen pb-24 font-sans">
@@ -123,50 +161,81 @@ const ContactUs = () => {
               <h3 className="text-2xl font-bold text-gray-900 mb-2">Send a Message</h3>
               <p className="text-gray-500 mb-8 text-sm">We'll get back to you within 24 hours.</p>
 
-              <form className="space-y-6 relative z-10">
+              <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
                 
-                <div className={`relative border-b-2 transition-colors duration-300 ${focusedInput === 'name' ? 'border-[#e55b13]' : 'border-gray-200'}`}>
-                  <label className={`absolute left-0 transition-all duration-300 pointer-events-none ${focusedInput === 'name' ? '-top-3 text-xs text-[#e55b13]' : 'top-2 text-sm text-gray-400'}`}>
+                {status === 'success' && (
+                  <div className="bg-green-50 text-green-800 p-4 rounded-xl flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-bold">Message sent successfully!</p>
+                      <p className="text-sm">We'll get back to you within 24 hours.</p>
+                    </div>
+                  </div>
+                )}
+
+                {status === 'error' && (
+                  <div className="bg-red-50 text-red-800 p-4 rounded-xl">
+                    <p className="text-sm font-medium">{errorMsg}</p>
+                  </div>
+                )}
+
+                <div className={`relative border-b-2 transition-colors duration-300 ${(focusedInput === 'name' || formData.name) ? 'border-[#e55b13]' : 'border-gray-200'}`}>
+                  <label className={`absolute left-0 transition-all duration-300 pointer-events-none ${(focusedInput === 'name' || formData.name) ? '-top-3 text-xs text-[#e55b13]' : 'top-2 text-sm text-gray-400'}`}>
                     Your Name
                   </label>
                   <input 
                     type="text" 
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
                     onFocus={() => setFocusedInput('name')}
                     onBlur={() => setFocusedInput(null)}
+                    required
                     className="w-full bg-transparent pt-3 pb-2 focus:outline-none text-gray-900 font-medium"
                   />
                 </div>
 
-                <div className={`relative border-b-2 transition-colors duration-300 ${focusedInput === 'email' ? 'border-[#e55b13]' : 'border-gray-200'}`}>
-                  <label className={`absolute left-0 transition-all duration-300 pointer-events-none ${focusedInput === 'email' ? '-top-3 text-xs text-[#e55b13]' : 'top-2 text-sm text-gray-400'}`}>
+                <div className={`relative border-b-2 transition-colors duration-300 ${(focusedInput === 'email' || formData.email) ? 'border-[#e55b13]' : 'border-gray-200'}`}>
+                  <label className={`absolute left-0 transition-all duration-300 pointer-events-none ${(focusedInput === 'email' || formData.email) ? '-top-3 text-xs text-[#e55b13]' : 'top-2 text-sm text-gray-400'}`}>
                     Email Address
                   </label>
                   <input 
                     type="email" 
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     onFocus={() => setFocusedInput('email')}
                     onBlur={() => setFocusedInput(null)}
+                    required
                     className="w-full bg-transparent pt-3 pb-2 focus:outline-none text-gray-900 font-medium"
                   />
                 </div>
 
-                <div className={`relative border-b-2 transition-colors duration-300 ${focusedInput === 'message' ? 'border-[#e55b13]' : 'border-gray-200'}`}>
-                  <label className={`absolute left-0 transition-all duration-300 pointer-events-none ${focusedInput === 'message' ? '-top-3 text-xs text-[#e55b13]' : 'top-2 text-sm text-gray-400'}`}>
+                <div className={`relative border-b-2 transition-colors duration-300 ${(focusedInput === 'message' || formData.message) ? 'border-[#e55b13]' : 'border-gray-200'}`}>
+                  <label className={`absolute left-0 transition-all duration-300 pointer-events-none ${(focusedInput === 'message' || formData.message) ? '-top-3 text-xs text-[#e55b13]' : 'top-2 text-sm text-gray-400'}`}>
                     How can we help?
                   </label>
                   <textarea 
                     rows={4}
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
                     onFocus={() => setFocusedInput('message')}
                     onBlur={() => setFocusedInput(null)}
+                    required
                     className="w-full bg-transparent pt-3 pb-2 focus:outline-none text-gray-900 font-medium resize-none mt-2"
                   ></textarea>
                 </div>
 
                 <button 
-                  type="button" 
-                  className="w-full group relative flex items-center justify-center gap-2 bg-[#111] hover:bg-[#e55b13] text-white font-bold py-4 rounded-xl transition-all duration-300 overflow-hidden shadow-lg hover:shadow-[#e55b13]/30"
+                  type="submit" 
+                  disabled={status === 'loading'}
+                  className="w-full group relative flex items-center justify-center gap-2 bg-[#111] hover:bg-[#e55b13] text-white font-bold py-4 rounded-xl transition-all duration-300 overflow-hidden shadow-lg hover:shadow-[#e55b13]/30 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  <span className="relative z-10 tracking-wide uppercase text-sm">Send Message</span>
-                  <Send className="w-4 h-4 relative z-10 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
+                  <span className="relative z-10 tracking-wide uppercase text-sm">
+                    {status === 'loading' ? 'Sending...' : 'Send Message'}
+                  </span>
+                  {status !== 'loading' && <Send className="w-4 h-4 relative z-10 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />}
                 </button>
               </form>
             </div>

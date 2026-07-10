@@ -17,6 +17,7 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminUsers from './pages/Admin/AdminUsers';
 import AdminPartners from './pages/Admin/AdminPartners';
 import AdminAdvertisements from './pages/Admin/AdminAdvertisements';
+import AdminContactMessages from './pages/Admin/AdminContactMessages';
 
 import PartnerDashboard from './pages/Partner/PartnerDashboard';
 import PartnerOrders from './pages/Partner/PartnerOrders';
@@ -44,6 +45,7 @@ export default function App() {
           <Route path="users" element={<AdminUsers />} />
           <Route path="partners" element={<AdminPartners />} />
           <Route path="advertisements" element={<AdminAdvertisements />} />
+          <Route path="messages" element={<AdminContactMessages />} />
         </Route>
 
         <Route path="/partner" element={<PartnerLayout />}>
