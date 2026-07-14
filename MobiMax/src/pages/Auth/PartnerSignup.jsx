@@ -1,60 +1,389 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Briefcase, Phone, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, Briefcase, Phone, ArrowRight, Store, MapPin, Hash, FileText, CheckCircle, Upload, Globe, Map } from 'lucide-react';
+import { Country, State, City } from 'country-state-city';
 
 const PartnerSignup = () => {
+  const [step, setStep] = useState(1);
+  
+  // Step 1: Account Info
   const [company, setCompany] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+
+  // Step 2: KYC & Store Info
+  const [storeName, setStoreName] = useState('');
+  const [storeCategory, setStoreCategory] = useState('');
+  const [storeAddress, setStoreAddress] = useState('');
+  const [storeCountry, setStoreCountry] = useState('');
+  const [storeState, setStoreState] = useState('');
+  const [storeCity, setStoreCity] = useState('');
+  const [storePincode, setStorePincode] = useState('');
+  const [aadharNumber, setAadharNumber] = useState('');
+  const [panNumber, setPanNumber] = useState('');
+  
+  // Files
+  const [storeLogo, setStoreLogo] = useState(null);
+  const [aadharCard, setAadharCard] = useState(null);
+  const [panCard, setPanCard] = useState(null);
+  const [partnerPhoto, setPartnerPhoto] = useState(null);
+
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignup = async (e) => {
+  // Dropdown data
+  const countries = Country.getAllCountries();
+  const states = storeCountry ? State.getStatesOfCountry(storeCountry) : [];
+  const cities = storeState ? City.getCitiesOfState(storeCountry, storeState) : [];
+
+  const handleNextStep = (e) => {
     e.preventDefault();
+    if (!company || !name || !email || !phone || !password) {
+      setError('Please fill all account details.');
+      return;
+    }
+    setError('');
+    setStep(2);
+  };
+
+  const handleFinalSubmit = async (e) => {
+    e.preventDefault();
+    if (!storeName || !storeCategory || !storeAddress || !storeCountry || !storeState || !storeCity || !storePincode || !aadharNumber || !panNumber) {
+      setError('Please fill all store and KYC details.');
+      return;
+    }
+    if (!storeLogo || !aadharCard || !panCard || !partnerPhoto) {
+      setError('Please upload all required documents.');
+      return;
+    }
+
     setError('');
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5001/api/partners/signup', {
+      // 1. Register Account
+      const signupRes = await fetch('http://localhost:5001/api/partners/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company, name, email, phone, password }),
       });
 
-      const data = await response.json();
+      const signupData = await signupRes.json();
 
-      if (data.status === 'success') {
-        localStorage.setItem('partnerToken', data.token);
-        localStorage.setItem('partnerData', JSON.stringify(data.partner));
-        window.dispatchEvent(new Event('authChange')); // Notify TopBar instantly
-        navigate('/'); // Soft redirect
-      } else {
-        setError(data.message || 'Signup failed');
+      if (signupData.status !== 'success') {
+        throw new Error(signupData.message || 'Signup failed');
       }
+
+      const token = signupData.token;
+
+      // Resolve country and state codes to names for the backend
+      const resolvedCountry = Country.getCountryByCode(storeCountry)?.name || storeCountry;
+      const resolvedState = State.getStateByCodeAndCountry(storeState, storeCountry)?.name || storeState;
+
+      // 2. Upload Docs
+      const formData = new FormData();
+      formData.append('store_name', storeName);
+      formData.append('store_category', storeCategory);
+      formData.append('store_address', storeAddress);
+      formData.append('store_country', resolvedCountry);
+      formData.append('store_state', resolvedState);
+      formData.append('store_city', storeCity);
+      formData.append('store_pincode', storePincode);
+      formData.append('aadhar_number', aadharNumber);
+      formData.append('pan_number', panNumber);
+      
+      formData.append('store_logo', storeLogo);
+      formData.append('aadhar_card', aadharCard);
+      formData.append('pan_card', panCard);
+      formData.append('partner_photo', partnerPhoto);
+
+      const docsRes = await fetch('http://localhost:5001/api/partners/upload-docs', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData,
+      });
+
+      const docsData = await docsRes.json();
+
+      if (docsData.status !== 'success') {
+        throw new Error(docsData.message || 'Failed to upload documents');
+      }
+
+      // Success
+      setStep(3);
+
     } catch (err) {
-      setError('Cannot connect to the server.');
+      setError(err.message || 'Cannot connect to the server.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className="flex-grow flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 border-t-4 border-t-[#e26a1b]">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-3">
-            <div className="bg-[#fff7f2] p-3 rounded-full">
-              <Briefcase className="h-8 w-8 text-[#e26a1b]" />
+  const renderStep1 = () => (
+    <form className="space-y-5" onSubmit={handleNextStep}>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Briefcase className="h-5 w-5 text-gray-400" />
+          </div>
+          <input type="text" required value={company} onChange={(e) => setCompany(e.target.value)}
+            className="pl-10 block w-full py-2.5 border border-gray-300 rounded-lg focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm" placeholder="Your Company Ltd." />
+        </div>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <User className="h-5 w-5 text-gray-400" />
+          </div>
+          <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
+            className="pl-10 block w-full py-2.5 border border-gray-300 rounded-lg focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm" placeholder="Jane Doe" />
+        </div>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Business Email</label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Mail className="h-5 w-5 text-gray-400" />
+          </div>
+          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+            className="pl-10 block w-full py-2.5 border border-gray-300 rounded-lg focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm" placeholder="partner@company.com" />
+        </div>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Phone className="h-5 w-5 text-gray-400" />
+          </div>
+          <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)}
+            className="pl-10 block w-full py-2.5 border border-gray-300 rounded-lg focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm" placeholder="+1 (555) 000-0000" />
+        </div>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Lock className="h-5 w-5 text-gray-400" />
+          </div>
+          <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
+            className="pl-10 block w-full py-2.5 border border-gray-300 rounded-lg focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm" placeholder="••••••••" />
+        </div>
+      </div>
+      <div className="pt-2">
+        <button type="submit" className="w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 transition-all">
+          Continue to KYC
+          <ArrowRight className="ml-2 h-5 w-5" />
+        </button>
+      </div>
+    </form>
+  );
+
+  const FileUploadField = ({ label, file, onChange }) => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <div className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-lg transition-colors cursor-pointer ${file ? 'border-emerald-300 bg-emerald-50 hover:border-emerald-400' : 'border-gray-300 bg-gray-50 hover:border-[#e26a1b]'}`}>
+        <div className="space-y-1 text-center">
+          {file ? <CheckCircle className="mx-auto h-8 w-8 text-emerald-500" /> : <Upload className="mx-auto h-8 w-8 text-gray-400" />}
+          <div className="flex text-sm text-gray-600 justify-center">
+            <label className={`relative cursor-pointer rounded-md font-medium px-2 py-1 shadow-sm transition-colors ${file ? 'bg-emerald-100 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-200' : 'bg-white text-[#e26a1b] hover:text-[#c45a16]'}`}>
+              <span className="truncate max-w-[150px] inline-block align-bottom">{file ? file.name : 'Upload a file'}</span>
+              <input type="file" className="sr-only" required={!file} accept="image/*" onChange={(e) => onChange(e.target.files[0])} />
+            </label>
+          </div>
+          {file && <p className="text-xs text-emerald-600 font-medium mt-1">File selected</p>}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStep2 = () => (
+    <form className="space-y-5" onSubmit={handleFinalSubmit}>
+      <div className="grid grid-cols-1 gap-y-5 sm:grid-cols-2 sm:gap-x-4">
+        <div className="sm:col-span-2">
+          <h3 className="text-lg font-bold text-gray-900 border-b pb-2">Store Details</h3>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Store Name</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Store className="h-4 w-4 text-gray-400" /></div>
+            <input type="text" required value={storeName} onChange={(e) => setStoreName(e.target.value)} className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Store Category</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Briefcase className="h-4 w-4 text-gray-400" /></div>
+            <select required value={storeCategory} onChange={(e) => setStoreCategory(e.target.value)} className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm">
+              <option value="">Select Category</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Food">Food</option>
+              <option value="Services">Services</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div className="sm:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Store Address</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><MapPin className="h-4 w-4 text-gray-400" /></div>
+            <input type="text" required value={storeAddress} onChange={(e) => setStoreAddress(e.target.value)} className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm" />
+          </div>
+        </div>
+
+        {/* Location Dropdowns */}
+        <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Globe className="h-4 w-4 text-gray-400" /></div>
+              <select 
+                required 
+                value={storeCountry} 
+                onChange={(e) => {
+                  setStoreCountry(e.target.value);
+                  setStoreState('');
+                  setStoreCity('');
+                }} 
+                className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm bg-white"
+              >
+                <option value="">Select Country</option>
+                {countries.map(country => (
+                  <option key={country.isoCode} value={country.isoCode}>{country.name}</option>
+                ))}
+              </select>
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Become a Partner</h2>
-          <p className="text-gray-500 text-sm">
-            Grow your business with MobiMax
-          </p>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Map className="h-4 w-4 text-gray-400" /></div>
+              <select 
+                required 
+                value={storeState} 
+                disabled={!storeCountry}
+                onChange={(e) => {
+                  setStoreState(e.target.value);
+                  setStoreCity('');
+                }} 
+                className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <option value="">Select State</option>
+                {states.map(state => (
+                  <option key={state.isoCode} value={state.isoCode}>{state.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><MapPin className="h-4 w-4 text-gray-400" /></div>
+              <select 
+                required 
+                value={storeCity} 
+                disabled={!storeState}
+                onChange={(e) => setStoreCity(e.target.value)} 
+                className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <option value="">Select City</option>
+                {cities.map(city => (
+                  <option key={city.name} value={city.name}>{city.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+          <input type="text" required value={storePincode} onChange={(e) => setStorePincode(e.target.value)} className="block w-full py-2 px-3 border border-gray-300 rounded-lg sm:text-sm" />
+        </div>
+
+        <div className="sm:col-span-2 mt-4">
+          <h3 className="text-lg font-bold text-gray-900 border-b pb-2">KYC Documents</h3>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Hash className="h-4 w-4 text-gray-400" /></div>
+            <input type="text" required value={aadharNumber} onChange={(e) => setAadharNumber(e.target.value)} className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">PAN Number</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><FileText className="h-4 w-4 text-gray-400" /></div>
+            <input type="text" required value={panNumber} onChange={(e) => setPanNumber(e.target.value)} className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm uppercase" />
+          </div>
+        </div>
+
+        <div className="sm:col-span-2 grid grid-cols-2 gap-4 mt-2">
+          <FileUploadField label="Store Logo" file={storeLogo} onChange={setStoreLogo} />
+          <FileUploadField label="Partner Photo" file={partnerPhoto} onChange={setPartnerPhoto} />
+          <FileUploadField label="Aadhar Card" file={aadharCard} onChange={setAadharCard} />
+          <FileUploadField label="PAN Card" file={panCard} onChange={setPanCard} />
+        </div>
+      </div>
+
+      <div className="pt-4 flex gap-4">
+        <button type="button" onClick={() => setStep(1)} className="flex-1 py-2.5 px-4 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all">
+          Back
+        </button>
+        <button type="submit" disabled={isLoading} className={`flex-1 flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[#e26a1b] hover:bg-[#c45a16] transition-all ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}>
+          {isLoading ? 'Submitting...' : 'Submit Application'}
+        </button>
+      </div>
+    </form>
+  );
+
+  const renderStep3 = () => (
+    <div className="text-center py-8">
+      <div className="flex justify-center mb-6">
+        <CheckCircle className="h-16 w-16 text-emerald-500 animate-bounce" />
+      </div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-4">Application Submitted!</h2>
+      <p className="text-gray-600 mb-8 max-w-sm mx-auto">
+        Your partner application and KYC documents have been successfully submitted and are currently <span className="font-semibold text-amber-600">under review</span> by our administration team.
+        You will be notified once your account is approved.
+      </p>
+      <Link to="/" className="inline-flex justify-center py-2.5 px-6 border border-transparent text-sm font-bold rounded-lg text-white bg-gray-900 hover:bg-gray-800 transition-all">
+        Return to Homepage
+      </Link>
+    </div>
+  );
+
+  return (
+    <div className="flex-grow flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className={`w-full bg-white rounded-xl shadow-lg p-8 border-t-4 border-t-[#e26a1b] transition-all ${step === 2 ? 'max-w-3xl' : 'max-w-md'}`}>
+        
+        {step !== 3 && (
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-3">
+              <div className="bg-[#fff7f2] p-3 rounded-full">
+                <Briefcase className="h-8 w-8 text-[#e26a1b]" />
+              </div>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Become a Partner</h2>
+            <p className="text-gray-500 text-sm">
+              {step === 1 ? 'Step 1: Account Information' : 'Step 2: KYC & Store Details'}
+            </p>
+            
+            {/* Progress Bar */}
+            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-6 overflow-hidden">
+              <div className="bg-[#e26a1b] h-1.5 rounded-full transition-all duration-500" style={{ width: step === 1 ? '50%' : '100%' }}></div>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 text-red-500 border border-red-200 rounded-lg text-sm text-center">
@@ -62,146 +391,20 @@ const PartnerSignup = () => {
           </div>
         )}
 
-        <form className="space-y-5" onSubmit={handleSignup}>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="company">
-              Company Name
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Briefcase className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                id="company"
-                name="company"
-                type="text"
-                required
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm transition-colors"
-                placeholder="Your Company Ltd."
-              />
-            </div>
-          </div>
+        {step === 1 && renderStep1()}
+        {step === 2 && renderStep2()}
+        {step === 3 && renderStep3()}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="name">
-              Contact Name
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm transition-colors"
-                placeholder="Jane Doe"
-              />
-            </div>
+        {step === 1 && (
+          <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col space-y-4">
+            <p className="text-center text-sm text-gray-600">
+              Already a partner?{' '}
+              <Link to="/partner/login" className="font-medium text-[#e26a1b] hover:text-[#c45a16] transition-colors">
+                Sign in
+              </Link>
+            </p>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
-              Business Email
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm transition-colors"
-                placeholder="partner@company.com"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="phone">
-              Phone Number
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Phone className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                autoComplete="tel"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm transition-colors"
-                placeholder="+1 (555) 000-0000"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">
-              Password
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm transition-colors"
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-all duration-200 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-            >
-              {isLoading ? 'Submitting...' : 'Submit Application'}
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-        </form>
-
-        <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col space-y-4">
-          <p className="text-center text-sm text-gray-600">
-            Already a partner?{' '}
-            <Link to="/partner/login" className="font-medium text-[#e26a1b] hover:text-[#c45a16] transition-colors">
-              Sign in
-            </Link>
-          </p>
-          <div className="relative flex items-center justify-center">
-            <span className="bg-white px-2 text-xs text-gray-500">OR</span>
-            <div className="absolute w-full h-px bg-gray-200 -z-10"></div>
-          </div>
-          <Link 
-            to="/signup" 
-            className="w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors"
-          >
-            Create a User Account
-          </Link>
-        </div>
+        )}
       </div>
     </div>
   );

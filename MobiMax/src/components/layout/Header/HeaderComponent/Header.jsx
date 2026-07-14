@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Header.css';
 
 const Header = () => {
+  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('Smartphones');
+
   return (
     <header className="header-container">
-
 
       {/* Middle Bar */}
       <div className="middle-bar">
@@ -19,7 +21,7 @@ const Header = () => {
             <input 
               type="text" 
               className="search-input" 
-              placeholder="Search for products..." 
+              placeholder="Search for smartphones, tablets, accessories..." 
             />
             <button className="search-button">SEARCH</button>
           </div>
@@ -40,7 +42,7 @@ const Header = () => {
               </div>
               <div className="cart-info">
                 <span className="cart-title">My cart</span>
-                <span className="cart-price">£135.99 | 1</span>
+                <span className="cart-price">£1,199.00 | 1</span>
               </div>
             </div>
           </div>
@@ -50,12 +52,107 @@ const Header = () => {
       {/* Bottom Bar */}
       <div className="bottom-bar">
         <div className="bottom-bar-inner">
-          <button className="departments-btn">
-            <span>SHOP DEPARTMENTS</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </button>
+          
+          <div 
+            className="departments-wrapper"
+            onMouseEnter={() => setIsMegaMenuOpen(true)}
+            onMouseLeave={() => setIsMegaMenuOpen(false)}
+          >
+            <button className="departments-btn">
+              <div className="flex items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+                <span>ALL DEPARTMENTS</span>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isMegaMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s ease' }}>
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            
+            {/* Mega Menu Dropdown */}
+            {isMegaMenuOpen && (
+              <div className="mega-menu-container">
+                <div className="mega-menu-sidebar">
+                  {['Smartphones', 'Tablets', 'Smartwatches', 'Audio & Headphones', 'Accessories', 'Laptops & PCs', 'Gaming'].map(category => (
+                    <div 
+                      key={category} 
+                      className={`mega-menu-item ${activeCategory === category ? 'active' : ''}`}
+                      onMouseEnter={() => setActiveCategory(category)}
+                    >
+                      {category}
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mega-menu-content">
+                  <div className="mega-menu-bestseller">
+                    <div className="bestseller-header">
+                      <span className="bestseller-title">BEST SELLERS</span>
+                      <div className="bestseller-nav">
+                        <button>&lt;</button>
+                        <button>&gt;</button>
+                      </div>
+                    </div>
+                    <div className="bestseller-product">
+                      <div className="product-image-placeholder">
+                        <span className="text-4xl font-bold text-[#e26a1b]">iPhone 15</span>
+                      </div>
+                      <h4 className="product-name">Apple iPhone 15 Pro Max 256GB Natural Titanium</h4>
+                      <div className="product-rating">
+                        ★★★★★
+                      </div>
+                      <div className="product-price">£1,199.00</div>
+                      <button className="add-to-cart-btn">ADD TO CART</button>
+                    </div>
+                  </div>
+
+                  <div className="mega-menu-links">
+                    <div className="links-column">
+                      <h4>SMARTPHONES</h4>
+                      <ul>
+                        <li><a href="#">Apple iPhone</a></li>
+                        <li><a href="#">Samsung Galaxy</a></li>
+                        <li><a href="#">Google Pixel</a></li>
+                        <li><a href="#">OnePlus</a></li>
+                        <li><a href="#">Motorola</a></li>
+                      </ul>
+                      
+                      <h4 className="mt-8">TABLETS</h4>
+                      <ul>
+                        <li><a href="#">Apple iPad</a></li>
+                        <li><a href="#">Samsung Galaxy Tab</a></li>
+                        <li><a href="#">Lenovo Tablets</a></li>
+                      </ul>
+                    </div>
+                    
+                    <div className="links-column">
+                      <h4>ACCESSORIES</h4>
+                      <ul>
+                        <li><a href="#">Phone Cases</a></li>
+                        <li><a href="#">Screen Protectors</a></li>
+                        <li><a href="#">Chargers & Adapters</a></li>
+                        <li><a href="#">Cables</a></li>
+                        <li><a href="#">Power Banks</a></li>
+                      </ul>
+                      
+                      <h4 className="mt-8">AUDIO</h4>
+                      <ul>
+                        <li><a href="#">Wireless Earbuds</a></li>
+                        <li><a href="#">Headphones</a></li>
+                        <li><a href="#">Bluetooth Speakers</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
           
           <nav className="nav-links">
             <a href="#" className="nav-link active" style={{textDecoration: 'underline', textUnderlineOffset: '8px', textDecorationThickness: '2px'}}>Home</a>

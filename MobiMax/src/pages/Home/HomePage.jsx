@@ -3,7 +3,7 @@ import HeroSection from '../../components/home/HeroSection/HeroSection';
 import PromoPopup from '../../components/home/HeroSection/PromoPopup';
 import FeaturesBar from '../../components/home/FeaturesBar/FeaturesBar';
 import PopularParts from '../../components/home/PopularParts/PopularParts';
-
+import PromoSection from '../../components/home/PromoSection/PromoSection';
 import ShopByMake from '../../components/home/ShopByMake/ShopByMake';
 
 const HomePage = () => {
@@ -14,6 +14,7 @@ const HomePage = () => {
       <FeaturesBar />
       <PopularParts />
       <ShopByMake />
+      <PromoSection />
     </main>
   );
 };

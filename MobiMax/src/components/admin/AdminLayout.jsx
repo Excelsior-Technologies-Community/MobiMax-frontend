@@ -1,11 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, Settings, LogOut, Search, Bell, ChevronDown, ChevronUp, Image, Mail } from 'lucide-react';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:5001');
 
 const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    const handleStatusUpdate = ({ id, status, company }) => {
+      if (status === 'under_review') {
+        const newNotif = {
+          id: Date.now(),
+          message: `New KYC Application submitted for review.`,
+          timestamp: new Date().toISOString()
+        };
+        setNotifications((prev) => [newNotif, ...prev]);
+      }
+    };
+
+    socket.on('partner_status_updated', handleStatusUpdate);
+
+    return () => {
+      socket.off('partner_status_updated', handleStatusUpdate);
+    };
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -125,10 +149,48 @@ const AdminLayout = () => {
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <button className="text-gray-400 hover:text-gray-700 relative transition-colors">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-[#e26a1b] border-2 border-white rounded-full"></span>
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="text-gray-400 hover:text-gray-700 relative transition-colors"
+              >
+                <Bell className="h-5 w-5" />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-[#e26a1b] border-2 border-white rounded-full"></span>
+                )}
+              </button>
+              
+              {/* Notifications Dropdown */}
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
+                  <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
+                    <button 
+                      onClick={() => setNotifications([])} 
+                      className="text-xs text-[#e26a1b] hover:text-[#c45a16] font-medium"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-6 text-center text-sm text-gray-500">
+                        No new notifications
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-gray-50">
+                        {notifications.map((notif) => (
+                          <div key={notif.id} className="px-4 py-3 hover:bg-gray-50 transition-colors">
+                            <p className="text-sm text-gray-800">{notif.message}</p>
+                            <p className="text-xs text-gray-400 mt-1">{new Date(notif.timestamp).toLocaleTimeString()}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="flex items-center gap-3 pl-6 border-l border-gray-200">
               <div className="flex flex-col items-end">
                 <span className="text-sm font-bold text-gray-900">Admin User</span>

@@ -52,7 +52,6 @@ export default function App() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<PartnerDashboard />} />
           <Route path="orders" element={<PartnerOrders />} />
-          {/* Placeholders for future pages */}
           <Route path="earnings" element={<PartnerDashboard />} />
           <Route path="settings" element={<PartnerDashboard />} />
         </Route>

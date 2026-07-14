@@ -26,7 +26,7 @@ const BottomBar = () => {
             {/* Mega Menu Dropdown */}
             <div className="absolute top-full left-0 w-[900px] bg-white shadow-[0_15px_40px_rgba(0,0,0,0.12)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex border border-gray-100 rounded-b-[4px] rounded-tr-[4px]">
               
-              {/* Left Sidebar (Categories) - Width perfectly matches the button above */}
+              {/* Left Sidebar (Categories) */}
               <div className="w-[260px] bg-white flex flex-col py-2 border-r border-gray-100 shrink-0 shadow-[2px_0_10px_rgba(0,0,0,0.02)] z-10">
                 {shopDepartments.map((dept) => (
                   <div
@@ -60,13 +60,16 @@ const BottomBar = () => {
                   {/* Product Card */}
                   <div className="group/product cursor-pointer block">
                     <div className="mb-4 relative rounded-md overflow-hidden bg-gray-50 flex items-center justify-center p-4 h-[180px]">
-                      <img src="https://placehold.co/400x400/f8f9fa/e26a1b?text=Tire" alt="Product" className="max-w-full max-h-full object-contain group-hover/product:scale-110 transition-transform duration-500" />
+                      {/* Using a placeholder styled like a phone */}
+                      <div className="w-24 h-40 bg-gray-200 rounded-xl border-4 border-gray-800 shadow-inner flex items-center justify-center group-hover/product:scale-110 transition-transform duration-500">
+                        <span className="text-[#e26a1b] font-bold text-xs">MobiMax</span>
+                      </div>
                     </div>
-                    <h6 className="text-[14px] font-bold text-gray-900 leading-snug mb-1.5 group-hover/product:text-[#e26a1b] transition-colors">Allstar Performance 16 Grit 7 in OD Nail Head Tire</h6>
+                    <h6 className="text-[14px] font-bold text-gray-900 leading-snug mb-1.5 group-hover/product:text-[#e26a1b] transition-colors">Apple iPhone 15 Pro Max 256GB</h6>
                     <div className="flex text-[#ffb400] mb-2 gap-0.5">
-                      <span className="text-[11px]">★</span><span className="text-[11px]">★</span><span className="text-[11px]">★</span><span className="text-[11px]">★</span><span className="text-[11px] text-gray-300">★</span>
+                      <span className="text-[11px]">★</span><span className="text-[11px]">★</span><span className="text-[11px]">★</span><span className="text-[11px]">★</span><span className="text-[11px]">★</span>
                     </div>
-                    <div className="text-[#e26a1b] font-extrabold text-[16px] mb-4">£135.99</div>
+                    <div className="text-[#e26a1b] font-extrabold text-[16px] mb-4">£1,199.00</div>
                     <button className="w-full bg-[#ffe600] hover:bg-[#e6cc00] text-black font-extrabold text-[12px] py-2.5 rounded-[3px] transition-colors tracking-wide">
                       ADD TO CART
                     </button>
@@ -91,15 +94,16 @@ const BottomBar = () => {
                       </ul>
                     </div>
                     
-                    {activeDept.id !== 4 && (
+                    {/* Show a static category if there's room */}
+                    {activeDept.id !== 1 && (
                       <div>
                         <h5 className="text-[13px] font-bold uppercase tracking-wider text-gray-900 mb-4 pb-2 border-b border-gray-100">
-                          ENGINE PARTS
+                          SMARTPHONES
                         </h5>
                         <ul className="flex flex-col gap-3">
-                          <li><a href="#" className="text-[14px] text-gray-500 hover:text-[#e26a1b] transition-colors">Air Boxes</a></li>
-                          <li><a href="#" className="text-[14px] text-gray-500 hover:text-[#e26a1b] transition-colors">Cold Start Valves</a></li>
-                          <li><a href="#" className="text-[14px] text-gray-500 hover:text-[#e26a1b] transition-colors">Cylinder Heads</a></li>
+                          <li><a href="#" className="text-[14px] text-gray-500 hover:text-[#e26a1b] transition-colors">Apple iPhone</a></li>
+                          <li><a href="#" className="text-[14px] text-gray-500 hover:text-[#e26a1b] transition-colors">Samsung Galaxy</a></li>
+                          <li><a href="#" className="text-[14px] text-gray-500 hover:text-[#e26a1b] transition-colors">Google Pixel</a></li>
                         </ul>
                       </div>
                     )}
@@ -124,12 +128,12 @@ const BottomBar = () => {
                     {activeDept.id !== 5 && (
                       <div>
                         <h5 className="text-[13px] font-bold uppercase tracking-wider text-gray-900 mb-4 pb-2 border-b border-gray-100">
-                          LIGHTING
+                          ACCESSORIES
                         </h5>
                         <ul className="flex flex-col gap-3">
-                          <li><a href="#" className="text-[14px] text-gray-500 hover:text-[#e26a1b] transition-colors">Adapters</a></li>
-                          <li><a href="#" className="text-[14px] text-gray-500 hover:text-[#e26a1b] transition-colors">Cameras & Cases</a></li>
-                          <li><a href="#" className="text-[14px] text-gray-500 hover:text-[#e26a1b] transition-colors">GPS Systems</a></li>
+                          <li><a href="#" className="text-[14px] text-gray-500 hover:text-[#e26a1b] transition-colors">Phone Cases</a></li>
+                          <li><a href="#" className="text-[14px] text-gray-500 hover:text-[#e26a1b] transition-colors">Chargers</a></li>
+                          <li><a href="#" className="text-[14px] text-gray-500 hover:text-[#e26a1b] transition-colors">Screen Protectors</a></li>
                         </ul>
                       </div>
                     )}
