@@ -448,3 +448,110 @@ ul, li {
 .links-column a:hover {
   color: #e26a1b;
 }
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .top-bar-inner {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 15px;
+  }
+  
+  .top-bar-left, .top-bar-right {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .middle-bar-inner {
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px 15px;
+  }
+  
+  .search-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .actions-container {
+    width: 100%;
+    justify-content: center;
+    gap: 30px;
+  }
+
+  .bottom-bar-inner {
+    flex-direction: column;
+    height: auto;
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .departments-btn {
+    width: 100%;
+    justify-content: space-between;
+    padding: 12px 20px;
+  }
+
+  .nav-links {
+    margin-left: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+  }
+
+  .vehicles-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .departments-wrapper {
+    width: 100%;
+  }
+
+  .mega-menu-container {
+    width: 100%;
+    position: relative;
+    flex-direction: column;
+    box-shadow: none;
+    border: 1px solid #eee;
+  }
+
+  .mega-menu-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .mega-menu-content {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .mega-menu-bestseller {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+    padding-right: 0;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+
+  .mega-menu-links {
+    padding-left: 0;
+    flex-direction: column;
+    gap: 30px;
+  }
+}
+
+@media (max-width: 576px) {
+  .logo-text {
+    font-size: 28px;
+  }
+  
+  .search-button {
+    padding: 0 15px;
+  }
+}

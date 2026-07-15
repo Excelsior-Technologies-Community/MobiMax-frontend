@@ -5,6 +5,7 @@ import { Country, State, City } from 'country-state-city';
 
 const PartnerSignup = () => {
   const [step, setStep] = useState(1);
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   
   // Step 1: Account Info
   const [company, setCompany] = useState('');
@@ -15,12 +16,16 @@ const PartnerSignup = () => {
 
   // Step 2: KYC & Store Info
   const [storeName, setStoreName] = useState('');
-  const [storeCategory, setStoreCategory] = useState('');
+  const [storeCategories, setStoreCategories] = useState([]);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [otherCategoryDesc, setOtherCategoryDesc] = useState('');
   const [storeAddress, setStoreAddress] = useState('');
   const [storeCountry, setStoreCountry] = useState('');
   const [storeState, setStoreState] = useState('');
   const [storeCity, setStoreCity] = useState('');
+  const [storeArea, setStoreArea] = useState('');
   const [storePincode, setStorePincode] = useState('');
+  const [availableAreas, setAvailableAreas] = useState([]);
   const [aadharNumber, setAadharNumber] = useState('');
   const [panNumber, setPanNumber] = useState('');
   
@@ -39,19 +44,110 @@ const PartnerSignup = () => {
   const states = storeCountry ? State.getStatesOfCountry(storeCountry) : [];
   const cities = storeState ? City.getCitiesOfState(storeCountry, storeState) : [];
 
+  const carBrands = [
+    'Maruti Suzuki', 'Hyundai', 'Tata Motors', 'Mahindra', 'Honda', 
+    'Toyota', 'Volkswagen', 'Skoda', 'Nissan', 'Renault', 'Kia', 'MG', 'Ford', 'Other'
+  ];
+
+  const toggleCategory = (brand) => {
+    if (storeCategories.includes(brand)) {
+      setStoreCategories(storeCategories.filter(c => c !== brand));
+    } else {
+      setStoreCategories([...storeCategories, brand]);
+    }
+  };
+
+  // Pincode auto-lookup
+  React.useEffect(() => {
+    const fetchLocation = async () => {
+      if (storePincode.length === 6 && /^\d+$/.test(storePincode)) {
+        setIsFetchingLocation(true);
+        try {
+          const res = await fetch(`https://api.postalpincode.in/pincode/${storePincode}`);
+          const data = await res.json();
+          if (data && data[0] && data[0].Status === 'Success') {
+            const postOffices = data[0].PostOffice;
+            const details = postOffices[0];
+            const stateName = details.State;
+            const districtName = details.District;
+            
+            // Extract all areas
+            const areas = postOffices.map(po => po.Name);
+            setAvailableAreas(areas);
+            if (areas.length > 0 && !areas.includes(storeArea)) {
+              setStoreArea(areas[0]);
+            }
+
+            // Set Country to India
+            setStoreCountry('IN');
+
+            // Find State ISO Code
+            const indianStates = State.getStatesOfCountry('IN');
+            const stateObj = indianStates.find(s => s.name.toLowerCase() === stateName.toLowerCase());
+            
+            if (stateObj) {
+              setStoreState(stateObj.isoCode);
+              
+              // Attempt to find City
+              const stateCities = City.getCitiesOfState('IN', stateObj.isoCode);
+              const cityObj = stateCities.find(c => 
+                c.name.toLowerCase() === districtName.toLowerCase() || 
+                districtName.toLowerCase().includes(c.name.toLowerCase()) ||
+                c.name.toLowerCase().includes(districtName.toLowerCase())
+              );
+              
+              if (cityObj) {
+                setStoreCity(cityObj.name);
+              }
+            }
+          } else {
+            setAvailableAreas([]);
+          }
+        } catch (error) {
+          console.error('Failed to fetch pincode details', error);
+          setAvailableAreas([]);
+        } finally {
+          setIsFetchingLocation(false);
+        }
+      } else {
+        setAvailableAreas([]);
+      }
+    };
+
+    fetchLocation();
+  }, [storePincode]);
+
   const handleNextStep = (e) => {
     e.preventDefault();
     if (!company || !name || !email || !phone || !password) {
       setError('Please fill all account details.');
       return;
     }
+
+    // Phone Number Validation (exactly 10 digits)
+    if (!/^\d{10}$/.test(phone)) {
+      setError('Please enter a valid 10-digit phone number.');
+      return;
+    }
+
+    // Password Validation (at least one special character)
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      setError('Password must contain at least one special character.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
     setError('');
     setStep(2);
   };
 
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
-    if (!storeName || !storeCategory || !storeAddress || !storeCountry || !storeState || !storeCity || !storePincode || !aadharNumber || !panNumber) {
+    if (!storeName || storeCategories.length === 0 || !storeAddress || !storeCountry || !storeState || !storeCity || !storeArea || !storePincode || !aadharNumber || !panNumber) {
       setError('Please fill all store and KYC details.');
       return;
     }
@@ -83,14 +179,21 @@ const PartnerSignup = () => {
       const resolvedCountry = Country.getCountryByCode(storeCountry)?.name || storeCountry;
       const resolvedState = State.getStateByCodeAndCountry(storeState, storeCountry)?.name || storeState;
 
+      let finalCategories = [...storeCategories];
+      if (finalCategories.includes('Other') && otherCategoryDesc) {
+        finalCategories = finalCategories.map(c => c === 'Other' ? `Other: ${otherCategoryDesc}` : c);
+      }
+      const categoryString = finalCategories.join(', ');
+
       // 2. Upload Docs
       const formData = new FormData();
       formData.append('store_name', storeName);
-      formData.append('store_category', storeCategory);
+      formData.append('store_category', categoryString);
       formData.append('store_address', storeAddress);
       formData.append('store_country', resolvedCountry);
       formData.append('store_state', resolvedState);
       formData.append('store_city', storeCity);
+      formData.append('store_area', storeArea);
       formData.append('store_pincode', storePincode);
       formData.append('aadhar_number', aadharNumber);
       formData.append('pan_number', panNumber);
@@ -162,12 +265,15 @@ const PartnerSignup = () => {
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Phone className="h-5 w-5 text-gray-400" />
           </div>
-          <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)}
-            className="pl-10 block w-full py-2.5 border border-gray-300 rounded-lg focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm" placeholder="+1 (555) 000-0000" />
+          <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+            maxLength={10}
+            className="pl-10 block w-full py-2.5 border border-gray-300 rounded-lg focus:ring-[#e26a1b] focus:border-[#e26a1b] sm:text-sm" placeholder="e.g. 9876543210" />
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Password <span className="text-xs text-gray-500 font-normal ml-1">(Min. 6 chars with 1 special character)</span>
+        </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Lock className="h-5 w-5 text-gray-400" />
@@ -216,19 +322,55 @@ const PartnerSignup = () => {
             <input type="text" required value={storeName} onChange={(e) => setStoreName(e.target.value)} className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm" />
           </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Store Category</label>
+        <div className="relative">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Store Category (Car Brands)</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Briefcase className="h-4 w-4 text-gray-400" /></div>
-            <select required value={storeCategory} onChange={(e) => setStoreCategory(e.target.value)} className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm">
-              <option value="">Select Category</option>
-              <option value="Electronics">Electronics</option>
-              <option value="Clothing">Clothing</option>
-              <option value="Food">Food</option>
-              <option value="Services">Services</option>
-              <option value="Other">Other</option>
-            </select>
+            <div 
+              className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm bg-white cursor-pointer select-none"
+              onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+            >
+              <span className={storeCategories.length === 0 ? "text-gray-500" : "text-gray-900 truncate block pr-6"}>
+                {storeCategories.length === 0 ? "Select Categories" : storeCategories.join(', ')}
+              </span>
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <svg className={`h-4 w-4 text-gray-400 transition-transform ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+              </div>
+            </div>
+            
+            {isCategoryDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setIsCategoryDropdownOpen(false)}></div>
+                <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  <div className="p-2 space-y-1">
+                    {carBrands.map(brand => (
+                      <label key={brand} className="flex items-center px-3 py-2 hover:bg-gray-50 rounded cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          className="w-4 h-4 text-[#e26a1b] border-gray-300 rounded focus:ring-[#e26a1b]"
+                          checked={storeCategories.includes(brand)}
+                          onChange={() => toggleCategory(brand)}
+                        />
+                        <span className="ml-3 text-sm text-gray-700 font-medium">{brand}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
+          {storeCategories.includes('Other') && (
+            <div className="mt-2 animate-fade-in">
+              <input 
+                type="text" 
+                placeholder="Please describe other categories..." 
+                value={otherCategoryDesc}
+                onChange={(e) => setOtherCategoryDesc(e.target.value)}
+                className="block w-full py-2 px-3 border border-gray-300 rounded-lg sm:text-sm focus:ring-[#e26a1b] focus:border-[#e26a1b]"
+                required
+              />
+            </div>
+          )}
         </div>
         <div className="sm:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">Store Address</label>
@@ -238,8 +380,24 @@ const PartnerSignup = () => {
           </div>
         </div>
 
+        <div className="sm:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Pincode <span className="text-xs text-gray-500 font-normal ml-1">(Auto-fills location for India)</span>
+            {isFetchingLocation && <span className="text-xs text-[#e26a1b] font-medium ml-2 animate-pulse">Fetching location...</span>}
+          </label>
+          <input 
+            type="text" 
+            required 
+            value={storePincode} 
+            onChange={(e) => setStorePincode(e.target.value)} 
+            placeholder="e.g. 400001"
+            maxLength={6}
+            className="block w-full py-2 px-3 border border-gray-300 rounded-lg sm:text-sm focus:ring-[#e26a1b] focus:border-[#e26a1b]" 
+          />
+        </div>
+
         {/* Location Dropdowns */}
-        <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
             <div className="relative">
@@ -302,11 +460,35 @@ const PartnerSignup = () => {
               </select>
             </div>
           </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
-          <input type="text" required value={storePincode} onChange={(e) => setStorePincode(e.target.value)} className="block w-full py-2 px-3 border border-gray-300 rounded-lg sm:text-sm" />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Area / Locality</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><MapPin className="h-4 w-4 text-gray-400" /></div>
+              {availableAreas.length > 0 ? (
+                <select 
+                  required 
+                  value={storeArea} 
+                  onChange={(e) => setStoreArea(e.target.value)} 
+                  className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm bg-white"
+                >
+                  <option value="">Select Area</option>
+                  {availableAreas.map(area => (
+                    <option key={area} value={area}>{area}</option>
+                  ))}
+                </select>
+              ) : (
+                <input 
+                  type="text" 
+                  required 
+                  value={storeArea} 
+                  onChange={(e) => setStoreArea(e.target.value)} 
+                  placeholder="Enter Area"
+                  className="pl-9 block w-full py-2 border border-gray-300 rounded-lg sm:text-sm"
+                />
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="sm:col-span-2 mt-4">
@@ -363,11 +545,11 @@ const PartnerSignup = () => {
   );
 
   return (
-    <div className="flex-grow flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className={`w-full bg-white rounded-xl shadow-lg p-8 border-t-4 border-t-[#e26a1b] transition-all ${step === 2 ? 'max-w-3xl' : 'max-w-md'}`}>
+    <div className="flex-grow flex items-center justify-center bg-gray-50 py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+      <div className={`w-full bg-white rounded-xl shadow-lg p-5 sm:p-8 border-t-4 border-t-[#e26a1b] transition-all ${step === 2 ? 'max-w-3xl' : 'max-w-md'}`}>
         
         {step !== 3 && (
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 sm:mb-8">
             <div className="flex justify-center mb-3">
               <div className="bg-[#fff7f2] p-3 rounded-full">
                 <Briefcase className="h-8 w-8 text-[#e26a1b]" />

@@ -54,9 +54,9 @@ const TopBar = () => {
 
   return (
     <div className="bg-[#f5f5f5] border-b border-[#e5e5e5] py-2 text-[13px] text-[#666]">
-      <div className="max-w-[1200px] mx-auto flex justify-between items-center px-[15px]">
+      <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center px-[15px] gap-2 md:gap-0">
         {/* Left Side: Contact Info */}
-        <div className="flex gap-5">
+        <div className="flex flex-wrap justify-center md:justify-start gap-3 md:gap-5">
           <div className="flex items-center gap-[6px]">
             <svg className="w-3.5 h-3.5 text-[#e26a1b]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>

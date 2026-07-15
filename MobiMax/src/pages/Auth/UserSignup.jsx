@@ -13,6 +13,18 @@ const UserSignup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Password Validation (at least one special character)
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      setError('Password must contain at least one special character.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -40,8 +52,8 @@ const UserSignup = () => {
   };
 
   return (
-    <div className="flex-grow flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+    <div className="flex-grow flex items-center justify-center bg-gray-50 py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-100">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
           <p className="text-gray-500 text-sm">
@@ -102,7 +114,7 @@ const UserSignup = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="password">
-              Password
+              Password <span className="text-xs text-gray-500 font-normal ml-1">(Min. 6 chars with 1 special character)</span>
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

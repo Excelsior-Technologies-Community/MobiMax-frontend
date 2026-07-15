@@ -60,12 +60,12 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 py-8 md:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
         
         {/* Left Side: Login Form */}
-        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-          <div className="mb-10 text-center md:text-left">
+        <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col justify-center">
+          <div className="mb-8 md:mb-10 text-center md:text-left">
             <div className="inline-flex items-center justify-center p-3 rounded-2xl mb-4 bg-gray-50">
               {isPartner ? <Briefcase className="w-8 h-8 text-[#e26a1b]" /> : <User className="w-8 h-8 text-[#e26a1b]" />}
             </div>
@@ -156,10 +156,10 @@ const Login = () => {
         </div>
 
         {/* Right Side: Informational / Promo */}
-        <div className={`w-full md:w-1/2 p-8 md:p-12 text-white flex flex-col justify-center relative overflow-hidden ${isPartner ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-[#e26a1b] to-orange-500'}`}>
+        <div className={`w-full md:w-1/2 p-8 md:p-12 text-white flex flex-col justify-center items-center relative overflow-hidden ${isPartner ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-[#e26a1b] to-orange-500'}`}>
           {/* Decorative Background Elements */}
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 rounded-full bg-black/10 blur-3xl"></div>
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-40 h-40 md:w-64 md:h-64 rounded-full bg-white/10 blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-40 h-40 md:w-64 md:h-64 rounded-full bg-black/10 blur-3xl"></div>
           
           <div className="relative z-10 flex flex-col items-center text-center">
             {isPartner ? (

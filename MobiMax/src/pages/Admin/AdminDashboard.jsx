@@ -29,14 +29,14 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
           <p className="text-gray-500 text-sm mt-1">
             Welcome back, {adminUser?.name || 'Admin'}. Here's what's happening today.
           </p>
         </div>
-        <button className="bg-[#e26a1b] text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#c95a14] transition-all duration-200 flex items-center shadow-[0_4px_12px_rgba(226,106,27,0.2)]">
+        <button className="bg-[#e26a1b] text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#c95a14] transition-all duration-200 flex items-center justify-center w-full sm:w-auto shadow-[0_4px_12px_rgba(226,106,27,0.2)]">
           Generate Report
           <ArrowUpRight className="ml-2 h-4 w-4" />
         </button>

@@ -91,12 +91,12 @@ const HeroSection = () => {
   const current = defaultSlides[activeSlide];
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto px-[15px] mt-6 mb-16">
-      <div className="flex flex-col md:flex-row w-full gap-6 h-auto md:h-[500px]">
+    <div className="w-full max-w-[1200px] mx-auto px-0 md:px-[15px] mt-0 md:mt-6 mb-16">
+      <div className="flex flex-col md:flex-row w-full gap-4 md:gap-6 h-auto md:h-[500px]">
         
         {/* Main Slider (Left) */}
         <div 
-          className="w-full md:w-2/3 relative overflow-hidden rounded-2xl shadow-xl group flex-shrink-0 transition-colors duration-700 ease-in-out"
+          className="w-full md:w-2/3 relative overflow-hidden md:rounded-2xl shadow-sm md:shadow-xl group flex-shrink-0 transition-colors duration-700 ease-in-out h-[260px] sm:h-[320px] md:h-full"
           style={{
             backgroundColor: current.bgColor,
           }}
@@ -115,39 +115,39 @@ const HeroSection = () => {
           ></div>
 
           {/* Content */}
-          <div className="relative z-30 h-full flex flex-col justify-center pl-8 md:pl-12 lg:pl-16 max-w-[60%]">
-            <div className="mb-3">
+          <div className="relative z-30 h-full flex flex-col justify-center pl-6 md:pl-12 lg:pl-16 max-w-[60%] md:max-w-[55%]">
+            <div className="mb-1 md:mb-3">
               <h2 
-                className="font-black text-4xl md:text-5xl uppercase tracking-wider drop-shadow-sm leading-tight transition-colors duration-700" 
+                className="font-black text-xl md:text-5xl uppercase tracking-wider drop-shadow-sm leading-tight transition-colors duration-700" 
                 style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.title1Color }}
               >
                 {current.title1}
               </h2>
               <h3 
-                className="font-extrabold text-2xl md:text-3xl uppercase tracking-wide drop-shadow-sm transition-colors duration-700" 
+                className="font-extrabold text-[15px] md:text-3xl uppercase tracking-wide drop-shadow-sm transition-colors duration-700" 
                 style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.title2Color }}
               >
                 {current.title2}
               </h3>
             </div>
             
-            <div className="mb-3">
+            <div className="mb-1 md:mb-3">
               <span 
-                className="font-black text-7xl md:text-[110px] lg:text-[130px] leading-[0.8] tracking-tighter transition-colors duration-700 drop-shadow-md block" 
+                className="font-black text-[70px] md:text-[110px] lg:text-[130px] leading-[0.8] tracking-tighter transition-colors duration-700 drop-shadow-md block" 
                 style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.discountColor }}
               >
                 {current.discount}
               </span>
             </div>
             
-            <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-1">
+            <div className="flex flex-wrap items-center gap-3 md:gap-6 mt-1">
               <span 
-                className="font-black text-4xl md:text-5xl uppercase leading-none transition-colors duration-700 drop-shadow-sm" 
+                className="font-black text-2xl md:text-5xl uppercase leading-none transition-colors duration-700 drop-shadow-sm" 
                 style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.offTextColor }}
               >
                 {current.offText}
               </span>
-              <button className="bg-[#d52b27] hover:bg-[#1e272e] transform hover:-translate-y-1 transition-all duration-300 text-white font-bold uppercase px-6 py-3 md:px-8 md:py-3.5 rounded-lg text-xs md:text-sm tracking-[0.15em] shadow-xl relative z-40 pointer-events-auto">
+              <button className="bg-[#d52b27] hover:bg-[#1e272e] transform hover:-translate-y-1 transition-all duration-300 text-white font-bold uppercase px-3 py-1.5 md:px-8 md:py-3.5 rounded md:rounded-lg text-[10px] md:text-sm tracking-widest shadow-md md:shadow-xl relative z-40 pointer-events-auto">
                 Shop Now
               </button>
             </div>
@@ -155,7 +155,7 @@ const HeroSection = () => {
           
           {/* Bottom Disclaimer Text */}
           <p 
-            className="absolute bottom-8 left-12 md:left-20 text-xs md:text-sm font-medium leading-relaxed max-w-[300px] z-20 transition-colors duration-700 opacity-80" 
+            className="absolute bottom-4 md:bottom-8 left-6 md:left-20 text-[9px] md:text-sm font-medium leading-relaxed max-w-[200px] md:max-w-[300px] z-20 transition-colors duration-700 opacity-80" 
             style={{ fontFamily: 'Inter, system-ui, sans-serif', color: current.disclaimerColor }}
           >
             This discount is not valid in conjunction with other offers.
@@ -178,22 +178,19 @@ const HeroSection = () => {
                   e.stopPropagation();
                   setActiveSlide(index);
                 }}
-                className={`w-4 h-4 rounded-full border-2 cursor-pointer flex items-center justify-center transition-all duration-300 shadow-sm ${
+                className={`w-3 h-3 md:w-4 md:h-4 rounded-full border-2 cursor-pointer flex items-center justify-center transition-all duration-300 shadow-sm ${
                   activeSlide === index 
-                    ? 'border-white bg-white/40 scale-125' 
-                    : 'border-white/50 hover:border-white/80'
+                    ? 'border-white bg-white scale-110 md:scale-125' 
+                    : 'border-black bg-transparent hover:border-black/80'
                 }`}
               >
-                {activeSlide === index && (
-                  <div className="w-2 h-2 rounded-full bg-white shadow-sm"></div>
-                )}
               </div>
             ))}
           </div>
         </div>
 
         {/* Right Side Banners */}
-        <div className="w-full md:w-1/3 flex flex-col gap-6 flex-shrink-0 h-[500px]">
+        <div className="w-full md:w-1/3 flex flex-col gap-4 md:gap-6 flex-shrink-0 h-[320px] md:h-[500px] px-[15px] md:px-0">
           
           {/* Top Banner (Earn $10) */}
           <div className="flex-1 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden relative group border border-gray-100 flex items-center">

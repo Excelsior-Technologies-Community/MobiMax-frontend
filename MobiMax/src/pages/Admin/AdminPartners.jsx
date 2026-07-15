@@ -7,6 +7,7 @@ const socket = io('http://localhost:5001');
 const AdminPartners = () => {
   const [partnersList, setPartnersList] = useState([]);
   const [selectedPartner, setSelectedPartner] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
     const fetchPartners = async () => {
@@ -207,11 +208,49 @@ const AdminPartners = () => {
     );
   };
 
+  const filteredPartners = partnersList.filter(p => {
+    if (filterStatus === 'all') return p.status !== 'under_review' && p.status !== 'pending';
+    if (filterStatus === 'under_review') return p.status === 'under_review' || p.status === 'pending';
+    return p.status === filterStatus;
+  });
+
+  const counts = {
+    all: partnersList.filter(p => p.status !== 'under_review' && p.status !== 'pending').length,
+    under_review: partnersList.filter(p => p.status === 'under_review' || p.status === 'pending').length,
+    active: partnersList.filter(p => p.status === 'active').length,
+    suspended: partnersList.filter(p => p.status === 'suspended').length
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Partners</h1>
         <p className="text-gray-500 text-sm mt-1">Review and manage partner applications and active partners.</p>
+      </div>
+
+      <div className="flex flex-wrap gap-2 pb-2">
+        {['all', 'under_review', 'active', 'suspended'].map(status => (
+          <button
+            key={status}
+            onClick={() => setFilterStatus(status)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+              filterStatus === status
+                ? 'bg-gray-900 text-white shadow-sm'
+                : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 shadow-sm'
+            }`}
+          >
+            <span>
+              {status === 'all' ? 'All Partners' : 
+               status === 'under_review' ? 'Under Review' : 
+               status === 'active' ? 'Approved' : 'Suspended'}
+            </span>
+            <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+              filterStatus === status ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'
+            }`}>
+              {counts[status]}
+            </span>
+          </button>
+        ))}
       </div>
 
       <div className="bg-white rounded-2xl shadow-[0_2px_20px_-8px_rgba(0,0,0,0.1)] border border-gray-100/80 overflow-hidden">
@@ -227,17 +266,17 @@ const AdminPartners = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {partnersList.length === 0 ? (
+              {filteredPartners.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="py-12 text-center">
                     <div className="flex flex-col items-center justify-center text-gray-400">
                       <Users className="h-10 w-10 mb-3 text-gray-300" />
-                      <p className="text-sm font-medium">No partners found</p>
+                      <p className="text-sm font-medium">No partners found in this category</p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                partnersList.map(p => (
+                filteredPartners.map(p => (
                   <tr key={p.id} className="hover:bg-[#F8F9FB] transition-colors duration-150">
                     <td className="py-4 px-6">
                       <div className="flex items-center">

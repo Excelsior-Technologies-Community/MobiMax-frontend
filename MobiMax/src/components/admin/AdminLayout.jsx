@@ -9,6 +9,7 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -50,8 +51,16 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F9FB] flex">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className="w-64 bg-[#0A0D14] text-white flex flex-col border-r border-[#1C212D]">
+      <div className={`fixed inset-y-0 left-0 z-50 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out md:flex w-64 bg-[#0A0D14] text-white flex flex-col border-r border-[#1C212D]`}>
         <div className="h-20 flex items-center justify-center border-b border-[#1C212D]">
           <img src="https://enovathemes.com/mobimax/wp-content/uploads/logo-retina.png" alt="MobiMax Logo" className="h-8 object-contain brightness-0 invert" />
         </div>
@@ -135,16 +144,25 @@ const AdminLayout = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-transparent">
+      <div className="flex-1 flex flex-col overflow-hidden bg-transparent w-full">
         {/* Top Header */}
-        <header className="h-20 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 border-b border-gray-100 z-10 sticky top-0">
-          <div className="flex items-center">
-            <div className="relative group">
+        <header className="h-20 bg-white/80 backdrop-blur-md flex items-center justify-between px-4 md:px-8 border-b border-gray-100 z-10 sticky top-0">
+          <div className="flex items-center gap-4">
+            {/* Mobile Sidebar Toggle */}
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden text-gray-500 hover:text-gray-700"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div className="relative group hidden sm:block">
               <Search className="h-5 w-5 absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#e26a1b] transition-colors" />
               <input 
                 type="text" 
                 placeholder="Search anything..." 
-                className="pl-11 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-[#e26a1b]/10 focus:border-[#e26a1b]/20 outline-none transition-all text-sm w-72 text-gray-700 placeholder-gray-400 font-medium"
+                className="pl-11 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:ring-4 focus:ring-[#e26a1b]/10 focus:border-[#e26a1b]/20 outline-none transition-all text-sm w-48 md:w-72 text-gray-700 placeholder-gray-400 font-medium"
               />
             </div>
           </div>
@@ -191,8 +209,8 @@ const AdminLayout = () => {
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-3 pl-6 border-l border-gray-200">
-              <div className="flex flex-col items-end">
+            <div className="flex items-center gap-3 pl-4 md:pl-6 border-l border-gray-200">
+              <div className="hidden sm:flex flex-col items-end">
                 <span className="text-sm font-bold text-gray-900">Admin User</span>
                 <span className="text-xs font-medium text-[#e26a1b]">Master Admin</span>
               </div>
@@ -204,7 +222,7 @@ const AdminLayout = () => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 md:p-6 w-full">
           <Outlet />
         </main>
       </div>

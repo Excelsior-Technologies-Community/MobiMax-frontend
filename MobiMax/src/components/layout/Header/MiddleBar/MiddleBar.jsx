@@ -3,21 +3,21 @@ import { Link } from 'react-router-dom';
 
 const MiddleBar = () => {
   return (
-    <div className="bg-white py-6">
-      <div className="max-w-[1200px] mx-auto flex justify-between items-center px-[15px]">
+    <div className="bg-white py-4 md:py-6">
+      <div className="max-w-[1200px] mx-auto flex flex-wrap justify-between items-center px-[15px]">
         {/* Logo */}
         <div className="flex-shrink-0">
           <Link to="/">
             <img 
               src="https://enovathemes.com/mobimax/wp-content/uploads/logo-retina.png" 
               alt="MobiMax" 
-              className="h-8 object-contain"
+              className="h-7 md:h-8 object-contain"
             />
           </Link>
         </div>
 
         {/* Search Bar */}
-        <div className="flex-1 max-w-[600px] mx-10">
+        <div className="w-full order-last mt-4 md:mt-0 md:order-none md:flex-1 md:max-w-[600px] mx-0 md:mx-10">
           <form className="flex w-full h-[45px]">
             <input 
               type="text" 

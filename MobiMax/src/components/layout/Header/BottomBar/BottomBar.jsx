@@ -7,14 +7,14 @@ const BottomBar = () => {
 
   return (
     <div className="bg-[#e26a1b] py-[10px]">
-      <div className="max-w-[1200px] mx-auto flex justify-between items-center px-[15px]">
+      <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center px-[15px] gap-4 md:gap-0">
         {/* Left Side: Shop Departments & Navigation */}
-        <div className="flex items-center">
+        <div className="flex flex-col md:flex-row items-center w-full md:w-auto gap-4 md:gap-0">
           
           {/* Shop Departments Dropdown Button & Mega Menu container */}
-          <div className="relative group mr-6 z-50">
+          <div className="relative group mr-0 md:mr-6 w-full md:w-auto z-50">
             {/* The Trigger Button - Fixed width to match sidebar */}
-            <div className="w-[260px] flex justify-between items-center bg-[#222] px-[20px] py-[14px] rounded-t-[4px] rounded-b-[4px] group-hover:rounded-b-none cursor-pointer transition-colors">
+            <div className="w-full md:w-[260px] flex justify-between items-center bg-[#222] px-[20px] py-[14px] rounded-t-[4px] rounded-b-[4px] group-hover:rounded-b-none cursor-pointer transition-colors">
               <span className="text-white font-bold text-[14px] uppercase tracking-wider">
                 Shop Departments
               </span>
@@ -24,10 +24,10 @@ const BottomBar = () => {
             </div>
 
             {/* Mega Menu Dropdown */}
-            <div className="absolute top-full left-0 w-[900px] bg-white shadow-[0_15px_40px_rgba(0,0,0,0.12)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex border border-gray-100 rounded-b-[4px] rounded-tr-[4px]">
+            <div className="absolute top-full left-0 w-full md:w-[900px] bg-white shadow-[0_15px_40px_rgba(0,0,0,0.12)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex flex-col md:flex-row border border-gray-100 rounded-b-[4px] rounded-tr-[4px]">
               
               {/* Left Sidebar (Categories) */}
-              <div className="w-[260px] bg-white flex flex-col py-2 border-r border-gray-100 shrink-0 shadow-[2px_0_10px_rgba(0,0,0,0.02)] z-10">
+              <div className="w-full md:w-[260px] bg-white flex flex-col py-2 border-r border-gray-100 shrink-0 shadow-[2px_0_10px_rgba(0,0,0,0.02)] z-10">
                 {shopDepartments.map((dept) => (
                   <div
                     key={dept.id}
@@ -45,10 +45,10 @@ const BottomBar = () => {
               </div>
 
               {/* Right Content Area (Subcategories & Best Sellers) */}
-              <div className="flex-1 p-8 flex gap-10 bg-white min-h-[440px]">
+              <div className="flex-1 p-4 md:p-8 flex flex-col md:flex-row gap-6 md:gap-10 bg-white min-h-auto md:min-h-[440px]">
                 
                 {/* Best Sellers Column */}
-                <div className="w-[220px] shrink-0 border-r border-gray-100 pr-8">
+                <div className="w-full md:w-[220px] shrink-0 border-r-0 md:border-r border-gray-100 pr-0 md:pr-8 border-b md:border-b-0 pb-6 md:pb-0 mb-2 md:mb-0">
                   <div className="flex justify-between items-center mb-5">
                     <h5 className="text-[13px] font-bold uppercase tracking-wider text-[#e26a1b]">Best Sellers</h5>
                     <div className="flex gap-1.5">
@@ -77,7 +77,7 @@ const BottomBar = () => {
                 </div>
 
                 {/* Subcategories Columns */}
-                <div className="flex-1 flex gap-10">
+                <div className="flex-1 flex flex-col sm:flex-row gap-6 md:gap-10">
                   <div className="flex-1 flex flex-col gap-8">
                     <div>
                       <h5 className="text-[13px] font-bold uppercase tracking-wider text-gray-900 mb-4 pb-2 border-b border-gray-100">
@@ -145,7 +145,7 @@ const BottomBar = () => {
           </div>
 
           {/* Navigation Links */}
-          <nav className="flex items-center gap-7">
+          <nav className="flex flex-wrap justify-center items-center gap-4 md:gap-7">
             <a href="#" className="text-white font-bold text-[15px] hover:text-white/90 relative">
               Home
               <span className="absolute -bottom-[4px] left-0 w-full h-[2px] bg-white"></span>
@@ -176,7 +176,7 @@ const BottomBar = () => {
         </div>
 
         {/* Right Side: My Vehicles Button */}
-        <div className="flex items-center bg-[#ffe600] px-[22px] py-[12px] rounded-[3px] cursor-pointer hover:bg-[#e6cc00] transition-colors">
+        <div className="flex justify-center items-center bg-[#ffe600] px-[22px] py-[12px] rounded-[3px] cursor-pointer hover:bg-[#e6cc00] transition-colors w-full md:w-auto mt-2 md:mt-0">
           <svg className="w-5 h-5 text-black mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a2 2 0 0 0-1.6-.8H9.3a2 2 0 0 0-1.6.8L5 11l-5.16.86a1 1 0 0 0-.84.99V16h3m10 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0zm-10 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0z"></path>
           </svg>
