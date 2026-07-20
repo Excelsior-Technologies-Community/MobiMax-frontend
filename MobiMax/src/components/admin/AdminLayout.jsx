@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Settings, LogOut, Search, Bell, ChevronDown, ChevronUp, Image, Mail } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, Search, Bell, ChevronDown, ChevronUp, Image, Mail, Layers } from 'lucide-react';
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:5001');
@@ -105,6 +105,14 @@ const AdminLayout = () => {
                 </div>
               </div>
             </div>
+
+            <Link 
+              to="/admin/categories" 
+              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/categories' ? 'bg-[#1C212D] text-white' : 'text-gray-400 hover:bg-[#1C212D] hover:text-white'}`}
+            >
+              <Layers className="h-5 w-5 mr-3.5" />
+              Categories
+            </Link>
 
             <Link 
               to="/admin/advertisements" 
