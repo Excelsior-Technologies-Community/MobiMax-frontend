@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const PopularParts = () => {
   const parts = [
@@ -9,7 +10,7 @@ const PopularParts = () => {
           <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
         </svg>
       ),
-      link: '/product-category/service-kits/'
+      link: '/category/Service Kits/stores'
     },
     {
       title: 'Brake Discs & Pads',
@@ -20,7 +21,7 @@ const PopularParts = () => {
           <path d="M12 2v2M12 20v2M2 12h2M20 12h2"/>
         </svg>
       ),
-      link: '/product-category/brake-disks-pads/'
+      link: '/category/Brake Discs & Pads/stores'
     },
     {
       title: 'Suspension',
@@ -29,7 +30,7 @@ const PopularParts = () => {
           <path d="M9 2h6M12 2v4l-4 3 8 4-8 4 4 3v2M9 22h6"/>
         </svg>
       ),
-      link: '/product-category/brake-disks-pads/'
+      link: '/category/Suspension/stores'
     },
     {
       title: 'Engine Parts',
@@ -39,7 +40,7 @@ const PopularParts = () => {
           <circle cx="12" cy="12" r="3"/>
         </svg>
       ),
-      link: '/product-category/engine-parts/'
+      link: '/category/Engine Parts/stores'
     },
     {
       title: 'Oil & lubricants',
@@ -48,7 +49,7 @@ const PopularParts = () => {
           <path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>
         </svg>
       ),
-      link: '/product-category/oil-lubricants/'
+      link: '/category/Oil & Lubricants/stores'
     },
     {
       title: 'Tires & Wheels',
@@ -59,7 +60,7 @@ const PopularParts = () => {
           <circle cx="12" cy="12" r="2"/>
         </svg>
       ),
-      link: '/product-category/tires-wheels/'
+      link: '/category/Tires & Wheels/stores'
     },
     {
       title: 'Steering',
@@ -70,7 +71,7 @@ const PopularParts = () => {
           <path d="m4.93 4.93 4.24 4.24M14.83 14.83l4.24 4.24M14.83 9.17l4.24-4.24M4.93 19.07l4.24-4.24"/>
         </svg>
       ),
-      link: '/product-category/steering/'
+      link: '/category/Steering/stores'
     },
     {
       title: 'Batteries',
@@ -82,7 +83,7 @@ const PopularParts = () => {
           <line x1="8" y1="10" x2="8" y2="14"/>
         </svg>
       ),
-      link: '/product-category/batteries/'
+      link: '/category/Batteries/stores'
     }
   ];
 
@@ -108,8 +109,8 @@ const PopularParts = () => {
       {/* Grid of Parts */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {parts.map((part, index) => (
-          <a 
-            href={part.link} 
+          <Link 
+            to={part.link} 
             key={index}
             className="bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 hover:border-[#e26a1b]/30 p-8 flex flex-col items-center justify-center cursor-pointer group transition-all duration-300 transform hover:-translate-y-1.5"
           >
@@ -125,7 +126,7 @@ const PopularParts = () => {
             >
               {part.title}
             </h6>
-          </a>
+          </Link>
         ))}
       </div>
 

@@ -11,6 +11,8 @@ import PartnerSignup from './pages/Auth/PartnerSignup';
 import ForgotPassword from './pages/Auth/ForgotPassword';
 import ResetPassword from './pages/Auth/ResetPassword';
 import ContactUs from './pages/ContactUs/ContactUs';
+import CategoryStoresPage from './pages/CategoryStores/CategoryStoresPage';
+import StoreProductsPage from './pages/StoreProducts/StoreProductsPage';
 
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
@@ -38,6 +40,8 @@ export default function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/contact" element={<ContactUs />} />
+            <Route path="/category/:categoryName/stores" element={<CategoryStoresPage />} />
+            <Route path="/store/:storeId/category/:categoryName" element={<StoreProductsPage />} />
           </Route>
         
         <Route path="/admin" element={<AdminLayout />}>

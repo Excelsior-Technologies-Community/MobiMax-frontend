@@ -12,6 +12,8 @@ const PublicLayout = () => {
       <div className="hidden md:block">
         <TopBar />
         <MiddleBar />
+      </div>
+      <div className="hidden md:block sticky top-0 z-[60]">
         <BottomBar />
       </div>
       <MobileHeader />
