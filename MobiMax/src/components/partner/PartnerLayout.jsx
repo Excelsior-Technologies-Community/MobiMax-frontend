@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, DollarSign, Settings, LogOut, Bell, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, DollarSign, Settings, LogOut, Bell, ExternalLink, Package } from 'lucide-react';
 
 const PartnerLayout = () => {
   const navigate = useNavigate();
@@ -61,6 +61,14 @@ const PartnerLayout = () => {
             >
               <ShoppingBag className={`h-5 w-5 mr-4 transition-transform duration-300 ${location.pathname === '/partner/orders' ? 'scale-110' : ''}`} />
               Orders
+            </Link>
+
+            <Link 
+              to="/partner/products" 
+              className={`flex items-center px-4 py-4 rounded-xl font-bold transition-all duration-300 uppercase tracking-wide text-xs ${location.pathname === '/partner/products' ? 'bg-[#e26a1b] text-white shadow-md transform scale-[1.02]' : 'text-gray-500 hover:bg-gray-50 hover:text-[#1e272e]'}`}
+            >
+              <Package className={`h-5 w-5 mr-4 transition-transform duration-300 ${location.pathname === '/partner/products' ? 'scale-110' : ''}`} />
+              Products
             </Link>
 
             <Link 

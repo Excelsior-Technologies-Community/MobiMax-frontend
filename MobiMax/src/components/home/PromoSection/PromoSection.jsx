@@ -1,59 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './PromoSection.css';
 
-const products = [
-  {
-    id: 1,
-    title: 'ValuePower Lead Acid Automotive Battery, Group 24F',
-    price: 49.77,
-    image: 'https://enovathemes.com/mobimax/wp-content/uploads/o-5-600x600.jpg',
-    rating: 0,
-  },
-  {
-    id: 2,
-    title: 'CCK01783 FRONT + REAR Powder Coated Black [4] Calipers + [4] Black DS Rotors + Low Dust [8] Ceramic Pads',
-    price: 56.40,
-    oldPrice: 77.80,
-    sale: '-28%',
-    image: 'https://enovathemes.com/mobimax/wp-content/uploads/b-p-10-600x600.jpg',
-    rating: 0,
-  },
-  {
-    id: 3,
-    title: 'For 04-08 Ford F150 11th Gen Chrome Housing Amber Corner Headlight Headlamp 05 06 07 Left+Right',
-    price: 183.44,
-    oldPrice: 210.75,
-    sale: '-13%',
-    image: 'https://enovathemes.com/mobimax/wp-content/uploads/el-p-6-600x600.jpg',
-    rating: 0,
-  },
-  {
-    id: 4,
-    title: '20x25x1 Pleated MERV 14 AC Furnace Air Filters Qty 6',
-    price: 11.14,
-    image: 'https://enovathemes.com/mobimax/wp-content/uploads/sk-p-11-1-600x600.jpg',
-    rating: 0,
-  },
-  {
-    id: 5,
-    title: 'Castrol EDGE 0W-40 A3B4 Advanced Full Synthetic Motor Oil, 5 QT',
-    price: 33.55,
-    image: 'https://enovathemes.com/mobimax/wp-content/uploads/oil-p-10-1-600x600.jpg',
-    rating: 0,
-  },
-  {
-    id: 6,
-    title: '2V 55Ah Power Boat Pontoon Electric Trolling Motor Deep Cycle Battery - 2 Pack',
-    price: 72.44,
-    oldPrice: 97.44,
-    sale: '-26%',
-    image: 'https://enovathemes.com/mobimax/wp-content/uploads/o-2-600x600.jpg',
-    rating: 0,
-  }
-];
-
 const PromoSection = () => {
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('POPULAR');
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/public/products');
+        const result = await response.json();
+        if (result.status === 'success') {
+          setProducts(result.data.slice(0, 8)); // Get up to 8 latest products
+        }
+      } catch (error) {
+        console.error('Error fetching public products:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchProducts();
+  }, []);
   
   return (
     <section className="promo-section-container">
@@ -109,32 +78,56 @@ const PromoSection = () => {
         </div>
 
         <div className="promo-grid">
-          {products.map(product => (
-            <div key={product.id} className="promo-product-card">
-              {product.sale && <div className="promo-badge">{product.sale}</div>}
-              <img src={product.image} alt={product.title} className="promo-product-image" />
-              
-              <h3 className="promo-product-title">{product.title}</h3>
-              
-              <div className="promo-product-rating">
-                {product.rating > 0 ? (
-                  <>
-                    {'★'.repeat(product.rating)}
-                    <span className="promo-product-rating-empty">{'★'.repeat(5 - product.rating)}</span>
-                  </>
-                ) : (
-                  <span className="promo-product-rating-empty">{'★★★★★'}</span>
-                )}
-              </div>
-              
-              <div className="promo-product-price-container">
-                {product.oldPrice && <span className="promo-product-old-price">£{product.oldPrice.toFixed(2)}</span>}
-                <span className="promo-product-price">£{product.price.toFixed(2)}</span>
-              </div>
-              
-              <button className="promo-add-to-cart">{product.id === 5 ? 'SELECT OPTIONS' : 'ADD TO CART'}</button>
+          {isLoading ? (
+            <div className="w-full flex items-center justify-center p-12">
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#e26a1b]"></div>
             </div>
-          ))}
+          ) : products.length === 0 ? (
+            <div className="w-full flex flex-col items-center justify-center p-12 text-center text-gray-500">
+              <p className="font-bold text-lg mb-2">No products available</p>
+              <p className="text-sm">Check back later for new arrivals.</p>
+            </div>
+          ) : (
+            products.map(product => (
+              <div key={product.id} className={`promo-product-card relative ${!product.in_stock ? 'opacity-75 grayscale-[30%]' : ''}`}>
+                {product.oldPrice && product.in_stock && <div className="promo-badge">-{(100 - (product.price / product.oldPrice) * 100).toFixed(0)}%</div>}
+                
+                {!product.in_stock && (
+                  <div className="absolute top-4 left-4 z-10 bg-[#e55039] text-white px-3 py-1 font-black text-[10px] uppercase tracking-widest rounded-sm shadow-md">
+                    Out of Stock
+                  </div>
+                )}
+                
+                <img src={product.image_url} alt={product.title} className="promo-product-image" />
+                
+                <h3 className="promo-product-title">{product.title}</h3>
+                
+                <div className="promo-product-rating">
+                  {product.rating > 0 ? (
+                    <>
+                      {'★'.repeat(product.rating)}
+                      <span className="promo-product-rating-empty">{'★'.repeat(5 - product.rating)}</span>
+                    </>
+                  ) : (
+                    <span className="promo-product-rating-empty">{'★★★★★'}</span>
+                  )}
+                </div>
+                
+                <div className="promo-product-price-container">
+                  {product.oldPrice && <span className="promo-product-old-price">£{Number(product.oldPrice).toFixed(2)}</span>}
+                  <span className="promo-product-price">£{Number(product.price).toFixed(2)}</span>
+                </div>
+                
+                <button 
+                  className={`promo-add-to-cart ${!product.in_stock ? 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300' : ''}`}
+                  disabled={!product.in_stock}
+                  style={!product.in_stock ? { backgroundColor: '#e2e8f0', color: '#94a3b8', borderColor: '#e2e8f0' } : {}}
+                >
+                  {product.in_stock ? 'ADD TO CART' : 'OUT OF STOCK'}
+                </button>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </section>

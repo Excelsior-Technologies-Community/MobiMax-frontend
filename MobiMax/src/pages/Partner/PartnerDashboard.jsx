@@ -7,8 +7,8 @@ const PartnerDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('partnerData');
-    const token = localStorage.getItem('partnerToken'); // Assuming token is stored here or similar
+    const userStr = localStorage.getItem('partnerData') || sessionStorage.getItem('partnerData');
+    const token = localStorage.getItem('partnerToken') || sessionStorage.getItem('partnerToken');
     
     if (userStr) {
       setPartnerUser(JSON.parse(userStr));
@@ -16,11 +16,19 @@ const PartnerDashboard = () => {
 
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:5001/api/partner/dashboard-stats', {
+        const response = await fetch('http://localhost:5001/api/partners/dashboard-stats', {
           headers: {
             'Authorization': token ? `Bearer ${token}` : ''
           }
         });
+        
+        if (response.status === 401) {
+          localStorage.removeItem('partnerToken');
+          sessionStorage.removeItem('partnerToken');
+          window.location.href = '/partner/login';
+          return;
+        }
+
         const result = await response.json();
         if (result.status === 'success') {
           setStats(result.data);

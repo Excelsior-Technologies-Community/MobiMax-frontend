@@ -22,6 +22,7 @@ import AdminCategories from './pages/Admin/AdminCategories';
 
 import PartnerDashboard from './pages/Partner/PartnerDashboard';
 import PartnerOrders from './pages/Partner/PartnerOrders';
+import PartnerProducts from './pages/Partner/PartnerProducts';
 
 export default function App() {
   return (
@@ -54,6 +55,7 @@ export default function App() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<PartnerDashboard />} />
           <Route path="orders" element={<PartnerOrders />} />
+          <Route path="products" element={<PartnerProducts />} />
           <Route path="earnings" element={<PartnerDashboard />} />
           <Route path="settings" element={<PartnerDashboard />} />
         </Route>
