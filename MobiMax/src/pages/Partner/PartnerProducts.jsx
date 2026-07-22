@@ -9,6 +9,7 @@ const PartnerProducts = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingProductId, setEditingProductId] = useState(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -16,8 +17,10 @@ const PartnerProducts = () => {
     description: '',
     price: '',
     oldPrice: '',
+    discount: '',
     category: '',
-    product_images: []
+    product_images: [],
+    existing_images: []
   });
   const [imagePreviews, setImagePreviews] = useState([]);
 
@@ -51,31 +54,105 @@ const PartnerProducts = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+      
+      // Auto-calculate logic
+      if (name === 'oldPrice' || name === 'discount') {
+        const old = parseFloat(name === 'oldPrice' ? value : prev.oldPrice);
+        const disc = parseFloat(name === 'discount' ? value : prev.discount);
+        
+        if (!isNaN(old) && !isNaN(disc) && disc > 0) {
+          newData.price = (old - (old * disc / 100)).toFixed(2);
+        }
+      } else if (name === 'price') {
+        const old = parseFloat(prev.oldPrice);
+        const curr = parseFloat(value);
+        if (!isNaN(old) && !isNaN(curr) && old > curr) {
+          newData.discount = ((1 - (curr / old)) * 100).toFixed(0);
+        } else {
+          newData.discount = '';
+        }
+      }
+      
+      return newData;
+    });
   };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     
-    // Combine existing images with new ones, capped at 5
-    const combinedFiles = [...formData.product_images, ...files].slice(0, 5);
+    // Combine existing string URLs + newly added files, capped at 5 total
+    const totalImages = formData.existing_images.length + formData.product_images.length;
+    const remainingSlots = 5 - totalImages;
+    
+    if (remainingSlots <= 0) return;
+    
+    const allowedFiles = files.slice(0, remainingSlots);
+    const combinedFiles = [...formData.product_images, ...allowedFiles];
     
     setFormData(prev => ({ ...prev, product_images: combinedFiles }));
     
-    // Generate previews
-    const previews = combinedFiles.map(file => URL.createObjectURL(file));
-    setImagePreviews(previews);
+    // Generate previews for the new files and append to existing previews
+    const newPreviews = allowedFiles.map(file => URL.createObjectURL(file));
+    setImagePreviews(prev => [...prev, ...newPreviews]);
   };
 
   const removeImage = (index) => {
-    const newFiles = [...formData.product_images];
-    newFiles.splice(index, 1);
+    const numExisting = formData.existing_images.length;
     
-    setFormData(prev => ({ ...prev, product_images: newFiles }));
+    if (index < numExisting) {
+      // Removing an existing image
+      const newExisting = [...formData.existing_images];
+      newExisting.splice(index, 1);
+      setFormData(prev => ({ ...prev, existing_images: newExisting }));
+    } else {
+      // Removing a newly added file
+      const newFiles = [...formData.product_images];
+      newFiles.splice(index - numExisting, 1);
+      setFormData(prev => ({ ...prev, product_images: newFiles }));
+    }
     
     const newPreviews = [...imagePreviews];
     newPreviews.splice(index, 1);
     setImagePreviews(newPreviews);
+  };
+
+  const openAddModal = () => {
+    setEditingProductId(null);
+    setFormData({ title: '', description: '', price: '', oldPrice: '', discount: '', category: '', product_images: [], existing_images: [] });
+    setImagePreviews([]);
+    setIsAddModalOpen(true);
+  };
+
+  const handleEditClick = (product) => {
+    setEditingProductId(product.id);
+    
+    let parsedImages = [];
+    try {
+      parsedImages = product.images_json ? JSON.parse(product.images_json) : [product.image_url];
+    } catch (e) {
+      parsedImages = [product.image_url];
+    }
+
+    let calculatedDiscount = '';
+    if (product.oldPrice && product.oldPrice > product.price) {
+      calculatedDiscount = ((1 - (product.price / product.oldPrice)) * 100).toFixed(0);
+    }
+
+    setFormData({
+      title: product.title,
+      description: product.description || '',
+      price: product.price,
+      oldPrice: product.oldPrice || '',
+      discount: calculatedDiscount,
+      category: product.category,
+      product_images: [],
+      existing_images: parsedImages
+    });
+    setImagePreviews(parsedImages);
+    setIsAddModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
@@ -90,12 +167,22 @@ const PartnerProducts = () => {
       formDataToSend.append('category', formData.category);
       if (formData.oldPrice) formDataToSend.append('oldPrice', formData.oldPrice);
       
+      if (formData.existing_images && formData.existing_images.length > 0) {
+        formDataToSend.append('existing_images', JSON.stringify(formData.existing_images));
+      }
+      
       formData.product_images.forEach(file => {
         formDataToSend.append('product_images', file);
       });
 
-      const response = await fetch('http://localhost:5001/api/partners/products', {
-        method: 'POST',
+      const url = editingProductId 
+        ? `http://localhost:5001/api/partners/products/${editingProductId}`
+        : 'http://localhost:5001/api/partners/products';
+        
+      const method = editingProductId ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -104,7 +191,8 @@ const PartnerProducts = () => {
       const result = await response.json();
       if (result.status === 'success') {
         setIsAddModalOpen(false);
-        setFormData({ title: '', description: '', price: '', oldPrice: '', category: '', product_images: [] });
+        setEditingProductId(null);
+        setFormData({ title: '', description: '', price: '', oldPrice: '', discount: '', category: '', product_images: [], existing_images: [] });
         setImagePreviews([]);
         fetchProducts(); // Refresh list
       } else if (response.status === 401) {
@@ -185,7 +273,7 @@ const PartnerProducts = () => {
         </div>
         
         <button 
-          onClick={() => setIsAddModalOpen(true)}
+          onClick={openAddModal}
           className="bg-[#e26a1b] hover:bg-[#d52b27] text-white px-6 py-3 rounded-lg font-black uppercase tracking-widest text-sm flex items-center shadow-lg transform hover:-translate-y-0.5 transition-all duration-300"
         >
           <Plus className="w-5 h-5 mr-2" />
@@ -283,7 +371,11 @@ const PartnerProducts = () => {
                     </td>
                     <td className="p-4 pr-6">
                       <div className="flex items-center justify-end gap-2">
-                        <button className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit">
+                        <button 
+                          onClick={() => handleEditClick(product)}
+                          className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" 
+                          title="Edit"
+                        >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button 
@@ -308,9 +400,14 @@ const PartnerProducts = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#1e272e]/60 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-              <h3 className="text-xl font-black text-[#1e272e] uppercase tracking-wider">Add New Product</h3>
+              <h3 className="text-xl font-black text-[#1e272e] uppercase tracking-wider">
+                {editingProductId ? 'Edit Product' : 'Add New Product'}
+              </h3>
               <button 
-                onClick={() => setIsAddModalOpen(false)}
+                onClick={() => {
+                  setIsAddModalOpen(false);
+                  setEditingProductId(null);
+                }}
                 className="text-gray-400 hover:text-[#d52b27] transition-colors"
               >
                 <Plus className="w-6 h-6 transform rotate-45" />
@@ -392,7 +489,35 @@ const PartnerProducts = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Price (£) *</label>
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Old Price (£) <span className="text-gray-400 font-normal normal-case">(Optional)</span></label>
+                    <input 
+                      type="number" 
+                      step="0.01"
+                      name="oldPrice" 
+                      value={formData.oldPrice}
+                      onChange={handleInputChange}
+                      placeholder="0.00"
+                      className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-[#e26a1b] focus:ring-2 focus:ring-[#e26a1b]/20 transition-all font-medium text-[#1e272e]"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Discount (%) <span className="text-gray-400 font-normal normal-case">(Auto-calculates Price)</span></label>
+                    <input 
+                      type="number" 
+                      step="1"
+                      min="0"
+                      max="99"
+                      name="discount" 
+                      value={formData.discount}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 10"
+                      className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-[#e26a1b] focus:ring-2 focus:ring-[#e26a1b]/20 transition-all font-medium text-[#1e272e]"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Final Price (£) *</label>
                     <input 
                       type="number" 
                       step="0.01"
@@ -406,19 +531,6 @@ const PartnerProducts = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Old Price (£) <span className="text-gray-400 font-normal normal-case">(Optional)</span></label>
-                    <input 
-                      type="number" 
-                      step="0.01"
-                      name="oldPrice" 
-                      value={formData.oldPrice}
-                      onChange={handleInputChange}
-                      placeholder="0.00"
-                      className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-[#e26a1b] focus:ring-2 focus:ring-[#e26a1b]/20 transition-all font-medium text-[#1e272e]"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2 space-y-1">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Category *</label>
                     <select 
                       name="category" 
@@ -446,7 +558,10 @@ const PartnerProducts = () => {
             <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-4">
               <button 
                 type="button" 
-                onClick={() => setIsAddModalOpen(false)}
+                onClick={() => {
+                  setIsAddModalOpen(false);
+                  setEditingProductId(null);
+                }}
                 className="px-6 py-3 rounded-lg font-black text-gray-500 uppercase tracking-widest text-sm hover:bg-gray-200 transition-colors"
                 disabled={isSubmitting}
               >
@@ -464,7 +579,7 @@ const PartnerProducts = () => {
                     Saving...
                   </>
                 ) : (
-                  'Save Product'
+                  editingProductId ? 'Update Product' : 'Save Product'
                 )}
               </button>
             </div>
