@@ -60,18 +60,16 @@ const AdminLayout = () => {
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out md:flex w-64 bg-[#0A0D14] text-white flex flex-col border-r border-[#1C212D]`}>
-        <div className="h-20 flex items-center justify-center border-b border-[#1C212D]">
-          <div className="bg-white px-4 py-1.5 rounded-xl shadow-sm">
-            <img src="/mobimax-logo.png" alt="MobiMax Logo" className="h-10 object-contain" />
-          </div>
+      <div className={`fixed inset-y-0 left-0 z-50 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out md:flex w-64 bg-white text-gray-800 flex flex-col border-r border-gray-100`}>
+        <div className="h-20 flex items-center justify-center border-b border-gray-100 bg-white">
+          <img src="/mobimax-logo.png" alt="MobiMax Logo" className="h-24 md:h-28 -my-6 object-contain" />
         </div>
         
         <div className="flex-1 overflow-y-auto py-6">
           <nav className="space-y-1.5 px-4">
             <Link 
               to="/admin/dashboard" 
-              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/dashboard' ? 'bg-[#e26a1b] text-white shadow-[0_4px_12px_rgba(226,106,27,0.3)]' : 'text-gray-400 hover:bg-[#1C212D] hover:text-white'}`}
+              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/dashboard' ? 'bg-[#e26a1b] text-white shadow-[0_4px_12px_rgba(226,106,27,0.3)]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
             >
               <LayoutDashboard className={`h-5 w-5 mr-3.5 ${location.pathname === '/admin/dashboard' ? 'text-white' : ''}`} />
               Dashboard
@@ -81,26 +79,26 @@ const AdminLayout = () => {
             <div>
               <button 
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname.includes('/admin/users') || location.pathname.includes('/admin/partners') ? 'bg-[#1C212D] text-white' : 'text-gray-400 hover:bg-[#1C212D] hover:text-white'}`}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname.includes('/admin/users') || location.pathname.includes('/admin/partners') ? 'bg-[#e26a1b]/10 text-[#e26a1b]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
               >
                 <div className="flex items-center">
                   <Users className={`h-5 w-5 mr-3.5 ${location.pathname.includes('/admin/users') || location.pathname.includes('/admin/partners') ? 'text-[#e26a1b]' : ''}`} />
                   Users & Partners
                 </div>
-                {isUserMenuOpen ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                {isUserMenuOpen ? <ChevronUp className="h-4 w-4 text-gray-500" /> : <ChevronDown className="h-4 w-4 text-gray-500" />}
               </button>
               
               <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isUserMenuOpen ? 'max-h-40 opacity-100 mt-1.5' : 'max-h-0 opacity-0'}`}>
-                <div className="space-y-1.5 pl-12 pr-2 py-2 rounded-xl bg-[#0F131D] border border-[#1C212D]">
+                <div className="space-y-1.5 pl-12 pr-2 py-2 rounded-xl bg-gray-50 border border-gray-100">
                   <Link 
                     to="/admin/partners" 
-                    className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/admin/partners' ? 'text-white bg-[#1C212D]' : 'text-gray-400 hover:text-white hover:bg-[#1C212D]'}`}
+                    className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/admin/partners' ? 'text-[#e26a1b] bg-white shadow-sm font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-white'}`}
                   >
                     Partners
                   </Link>
                   <Link 
                     to="/admin/users" 
-                    className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/admin/users' ? 'text-white bg-[#1C212D]' : 'text-gray-400 hover:text-white hover:bg-[#1C212D]'}`}
+                    className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/admin/users' ? 'text-[#e26a1b] bg-white shadow-sm font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-white'}`}
                   >
                     End User
                   </Link>
@@ -110,7 +108,7 @@ const AdminLayout = () => {
 
             <Link 
               to="/admin/categories" 
-              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/categories' ? 'bg-[#1C212D] text-white' : 'text-gray-400 hover:bg-[#1C212D] hover:text-white'}`}
+              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/categories' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
             >
               <Layers className="h-5 w-5 mr-3.5" />
               Categories
@@ -118,7 +116,7 @@ const AdminLayout = () => {
 
             <Link 
               to="/admin/advertisements" 
-              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/advertisements' ? 'bg-[#1C212D] text-white' : 'text-gray-400 hover:bg-[#1C212D] hover:text-white'}`}
+              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/advertisements' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
             >
               <Image className="h-5 w-5 mr-3.5" />
               Advertisements
@@ -126,7 +124,7 @@ const AdminLayout = () => {
 
             <Link 
               to="/admin/messages" 
-              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/messages' ? 'bg-[#1C212D] text-white' : 'text-gray-400 hover:bg-[#1C212D] hover:text-white'}`}
+              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/messages' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
             >
               <Mail className="h-5 w-5 mr-3.5" />
               Messages
@@ -134,7 +132,7 @@ const AdminLayout = () => {
 
             <Link 
               to="/settings" 
-              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/settings' ? 'bg-[#1C212D] text-white' : 'text-gray-400 hover:bg-[#1C212D] hover:text-white'}`}
+              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/settings' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
             >
               <Settings className="h-5 w-5 mr-3.5" />
               Settings
@@ -142,10 +140,10 @@ const AdminLayout = () => {
           </nav>
         </div>
 
-        <div className="p-4 border-t border-[#1C212D]">
+        <div className="p-4 border-t border-gray-100">
           <button 
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-3 text-gray-400 hover:text-red-400 hover:bg-[#1C212D] rounded-xl font-medium transition-colors"
+            className="flex items-center w-full px-4 py-3 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-xl font-medium transition-colors"
           >
             <LogOut className="h-5 w-5 mr-3.5" />
             Sign out
