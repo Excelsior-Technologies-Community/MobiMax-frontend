@@ -190,7 +190,7 @@ const StoreProductsPage = () => {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                   {filteredProducts.map(product => (
-                    <div key={product.id} className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col relative transition-all duration-300 hover:shadow-xl hover:border-[#e26a1b]/30 ${!product.in_stock ? 'opacity-75 grayscale-[30%]' : ''}`}>
+                    <Link to={`/product/${product.id}`} key={product.id} className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col relative transition-all duration-300 hover:shadow-xl hover:border-[#e26a1b]/30 block ${!product.in_stock ? 'opacity-75 grayscale-[30%]' : ''}`}>
                       {product.oldPrice && product.in_stock && <div className="absolute top-4 right-4 bg-[#1e272e] text-white text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider z-10">-{(100 - (product.price / product.oldPrice) * 100).toFixed(0)}%</div>}
                       
                       {!product.in_stock && (
@@ -212,14 +212,13 @@ const StoreProductsPage = () => {
                           <span className="text-[#e26a1b] font-black text-lg">£{Number(product.price).toFixed(2)}</span>
                         </div>
                         
-                        <button 
-                          className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-colors ${!product.in_stock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-[#1e272e] text-white hover:bg-[#e26a1b]'}`}
-                          disabled={!product.in_stock}
+                        <div 
+                          className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-colors ${!product.in_stock ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-[#1e272e] text-white group-hover:bg-[#e26a1b]'}`}
                         >
-                          {product.in_stock ? 'Add' : 'Out'}
-                        </button>
+                          {product.in_stock ? 'View' : 'Out'}
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}

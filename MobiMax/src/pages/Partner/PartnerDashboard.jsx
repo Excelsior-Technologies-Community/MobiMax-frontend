@@ -5,6 +5,7 @@ const PartnerDashboard = () => {
   const [partnerUser, setPartnerUser] = useState(null);
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isToggling, setIsToggling] = useState(false);
 
   useEffect(() => {
     const userStr = localStorage.getItem('partnerData') || sessionStorage.getItem('partnerData');
@@ -42,6 +43,41 @@ const PartnerDashboard = () => {
 
     fetchStats();
   }, []);
+
+  const handleTogglePause = async () => {
+    setIsToggling(true);
+    try {
+      const token = localStorage.getItem('partnerToken') || sessionStorage.getItem('partnerToken');
+      const response = await fetch('http://localhost:5001/api/partners/toggle-pause', {
+        method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : ''
+        }
+      });
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        const updatedUser = { ...partnerUser, is_paused: result.is_paused };
+        setPartnerUser(updatedUser);
+        
+        // Update storage
+        if (localStorage.getItem('partnerData')) {
+          localStorage.setItem('partnerData', JSON.stringify(updatedUser));
+        } else if (sessionStorage.getItem('partnerData')) {
+          sessionStorage.setItem('partnerData', JSON.stringify(updatedUser));
+        }
+        
+        window.dispatchEvent(new Event('partnerUserUpdated'));
+      } else {
+        alert(result.message || 'Failed to toggle pause state');
+      }
+    } catch (error) {
+      console.error('Error toggling pause:', error);
+      alert('An error occurred while toggling the store state.');
+    } finally {
+      setIsToggling(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -93,8 +129,16 @@ const PartnerDashboard = () => {
           <button className="bg-[#ffd32a] text-[#1e272e] px-8 py-4 rounded-lg text-sm font-black uppercase tracking-widest hover:bg-[#e26a1b] hover:text-white transition-all duration-300 shadow-lg transform hover:-translate-y-1">
             View Live Orders
           </button>
-          <button className="bg-white text-[#1e272e] border-2 border-white px-8 py-4 rounded-lg text-sm font-black uppercase tracking-widest hover:bg-transparent hover:text-white transition-all duration-300">
-            Pause Store
+          <button 
+            onClick={handleTogglePause}
+            disabled={isToggling}
+            className={`${
+              partnerUser?.is_paused 
+                ? 'bg-[#2ed573] text-white border-2 border-[#2ed573] hover:bg-transparent hover:text-[#2ed573]' 
+                : 'bg-white text-[#1e272e] border-2 border-white hover:bg-transparent hover:text-white'
+            } px-8 py-4 rounded-lg text-sm font-black uppercase tracking-widest transition-all duration-300 disabled:opacity-70`}
+          >
+            {isToggling ? 'Wait...' : partnerUser?.is_paused ? 'Resume Store' : 'Pause Store'}
           </button>
         </div>
         

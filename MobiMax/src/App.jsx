@@ -14,6 +14,7 @@ import ResetPassword from './pages/Auth/ResetPassword';
 import ContactUs from './pages/ContactUs/ContactUs';
 import CategoryStoresPage from './pages/CategoryStores/CategoryStoresPage';
 import StoreProductsPage from './pages/StoreProducts/StoreProductsPage';
+import ProductDetailPage from './pages/ProductDetail/ProductDetailPage';
 
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
@@ -26,6 +27,9 @@ import AdminCategories from './pages/Admin/AdminCategories';
 import PartnerDashboard from './pages/Partner/PartnerDashboard';
 import PartnerOrders from './pages/Partner/PartnerOrders';
 import PartnerProducts from './pages/Partner/PartnerProducts';
+import PartnerStock from './pages/Partner/PartnerStock';
+import PartnerBulkOrders from './pages/Partner/PartnerBulkOrders';
+import PartnerMessages from './pages/Partner/PartnerMessages';
 
 export default function App() {
   return (
@@ -44,6 +48,7 @@ export default function App() {
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/category/:categoryName/stores" element={<CategoryStoresPage />} />
             <Route path="/store/:storeId/category/:categoryName" element={<StoreProductsPage />} />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
           </Route>
         
         <Route path="/admin" element={<AdminLayout />}>
@@ -62,6 +67,9 @@ export default function App() {
           <Route path="dashboard" element={<PartnerDashboard />} />
           <Route path="orders" element={<PartnerOrders />} />
           <Route path="products" element={<PartnerProducts />} />
+          <Route path="stock" element={<PartnerStock />} />
+          <Route path="bulk-orders" element={<PartnerBulkOrders />} />
+          <Route path="messages" element={<PartnerMessages />} />
           <Route path="earnings" element={<PartnerDashboard />} />
           <Route path="settings" element={<PartnerDashboard />} />
         </Route>

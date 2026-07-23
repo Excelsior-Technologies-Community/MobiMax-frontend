@@ -11,7 +11,6 @@ const PartnerProducts = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
 
-  // Form State
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -19,6 +18,8 @@ const PartnerProducts = () => {
     oldPrice: '',
     discount: '',
     category: '',
+    stock_quantity: '',
+    sku: '',
     product_images: [],
     existing_images: []
   });
@@ -121,7 +122,7 @@ const PartnerProducts = () => {
 
   const openAddModal = () => {
     setEditingProductId(null);
-    setFormData({ title: '', description: '', price: '', oldPrice: '', discount: '', category: '', product_images: [], existing_images: [] });
+    setFormData({ title: '', description: '', price: '', oldPrice: '', discount: '', category: '', stock_quantity: '', sku: '', product_images: [], existing_images: [] });
     setImagePreviews([]);
     setIsAddModalOpen(true);
   };
@@ -148,6 +149,8 @@ const PartnerProducts = () => {
       oldPrice: product.oldPrice || '',
       discount: calculatedDiscount,
       category: product.category,
+      stock_quantity: product.stock_quantity !== undefined ? product.stock_quantity : '',
+      sku: product.sku || '',
       product_images: [],
       existing_images: parsedImages
     });
@@ -166,6 +169,8 @@ const PartnerProducts = () => {
       formDataToSend.append('price', formData.price);
       formDataToSend.append('category', formData.category);
       if (formData.oldPrice) formDataToSend.append('oldPrice', formData.oldPrice);
+      if (formData.stock_quantity) formDataToSend.append('stock_quantity', formData.stock_quantity);
+      if (formData.sku) formDataToSend.append('sku', formData.sku);
       
       if (formData.existing_images && formData.existing_images.length > 0) {
         formDataToSend.append('existing_images', JSON.stringify(formData.existing_images));
@@ -192,7 +197,7 @@ const PartnerProducts = () => {
       if (result.status === 'success') {
         setIsAddModalOpen(false);
         setEditingProductId(null);
-        setFormData({ title: '', description: '', price: '', oldPrice: '', discount: '', category: '', product_images: [], existing_images: [] });
+        setFormData({ title: '', description: '', price: '', oldPrice: '', discount: '', category: '', stock_quantity: '', sku: '', product_images: [], existing_images: [] });
         setImagePreviews([]);
         fetchProducts(); // Refresh list
       } else if (response.status === 401) {
@@ -236,19 +241,30 @@ const PartnerProducts = () => {
     }
   };
 
-  const handleToggleStock = async (id) => {
+  const handleUpdateStock = async (id, currentStock) => {
+    const newStockStr = window.prompt('Enter new stock quantity:', currentStock || 0);
+    if (newStockStr === null) return; // User cancelled
+    
+    const newStock = parseInt(newStockStr, 10);
+    if (isNaN(newStock) || newStock < 0) {
+      alert('Please enter a valid non-negative number for stock quantity.');
+      return;
+    }
+    
     try {
       const token = localStorage.getItem('partnerToken') || sessionStorage.getItem('partnerToken');
-      const response = await fetch(`http://localhost:5001/api/partners/products/${id}/toggle-stock`, {
+      const response = await fetch(`http://localhost:5001/api/partners/products/${id}/stock`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ stock_quantity: newStock })
       });
       const result = await response.json();
       if (result.status === 'success') {
         setProducts(prev => prev.map(p => 
-          p.id === id ? { ...p, in_stock: result.in_stock ? 1 : 0 } : p
+          p.id === id ? { ...p, stock_quantity: result.stock_quantity, in_stock: result.in_stock ? 1 : 0 } : p
         ));
       } else if (response.status === 401) {
         localStorage.removeItem('partnerToken');
@@ -258,7 +274,7 @@ const PartnerProducts = () => {
         alert(result.message || 'Failed to update stock status');
       }
     } catch (error) {
-      console.error('Error toggling stock:', error);
+      console.error('Error updating stock:', error);
     }
   };
 
@@ -354,19 +370,24 @@ const PartnerProducts = () => {
                     </td>
                     <td className="p-4 text-center">
                       <button
-                        onClick={() => handleToggleStock(product.id)}
-                        className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 focus:outline-none ${
-                          product.in_stock ? 'bg-[#2ed573]' : 'bg-gray-300'
+                        onClick={() => handleUpdateStock(product.id, product.stock_quantity)}
+                        className={`relative inline-flex items-center justify-center h-8 px-3 min-w-[70px] rounded-full transition-colors duration-200 focus:outline-none border ${
+                          !product.in_stock 
+                            ? 'bg-red-50 border-red-200 text-red-500 hover:bg-red-100' 
+                            : product.stock_quantity <= 5
+                              ? 'bg-orange-50 border-orange-200 text-orange-500 hover:bg-orange-100'
+                              : 'bg-[#2ed573]/10 border-[#2ed573]/30 text-[#2ed573] hover:bg-[#2ed573]/20'
                         }`}
+                        title="Click to update stock quantity"
                       >
-                        <span
-                          className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ${
-                            product.in_stock ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
+                        <span className="text-xs font-black tracking-wider">
+                          {product.stock_quantity !== undefined && product.stock_quantity !== null ? product.stock_quantity : 0} 
+                        </span>
                       </button>
-                      <div className={`text-[9px] font-black uppercase tracking-wider mt-1 ${product.in_stock ? 'text-[#2ed573]' : 'text-gray-400'}`}>
-                        {product.in_stock ? 'In Stock' : 'Out of Stock'}
+                      <div className={`text-[9px] font-black uppercase tracking-wider mt-1 ${
+                        !product.in_stock ? 'text-red-400' : product.stock_quantity <= 5 ? 'text-orange-400' : 'text-[#2ed573]'
+                      }`}>
+                        {!product.in_stock ? 'Out of Stock' : product.stock_quantity <= 5 ? 'Low Stock' : 'In Stock'}
                       </div>
                     </td>
                     <td className="p-4 pr-6">
@@ -550,6 +571,31 @@ const PartnerProducts = () => {
                       <option value="Batteries">Batteries</option>
                       <option value="Accessories">Accessories</option>
                     </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">SKU <span className="text-gray-400 font-normal normal-case">(Optional)</span></label>
+                    <input 
+                      type="text" 
+                      name="sku" 
+                      value={formData.sku}
+                      onChange={handleInputChange}
+                      placeholder="e.g. BP-12345"
+                      className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-[#e26a1b] focus:ring-2 focus:ring-[#e26a1b]/20 transition-all font-medium text-[#1e272e]"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Stock Quantity</label>
+                    <input 
+                      type="number" 
+                      name="stock_quantity" 
+                      value={formData.stock_quantity}
+                      onChange={handleInputChange}
+                      placeholder="0"
+                      min="0"
+                      className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-[#e26a1b] focus:ring-2 focus:ring-[#e26a1b]/20 transition-all font-medium text-[#1e272e]"
+                    />
                   </div>
                 </div>
               </form>

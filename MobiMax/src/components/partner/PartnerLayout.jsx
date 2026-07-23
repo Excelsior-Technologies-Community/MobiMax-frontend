@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, DollarSign, Settings, LogOut, Bell, ExternalLink, Package } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, DollarSign, Settings, LogOut, Bell, ExternalLink, Package, MessageSquare, Archive } from 'lucide-react';
 
 const PartnerLayout = () => {
   const navigate = useNavigate();
@@ -14,10 +14,22 @@ const PartnerLayout = () => {
       return;
     }
 
-    const userStr = localStorage.getItem('partnerData');
-    if (userStr) {
-      setPartnerUser(JSON.parse(userStr));
-    }
+    const loadUser = () => {
+      const userStr = localStorage.getItem('partnerData');
+      if (userStr) {
+        setPartnerUser(JSON.parse(userStr));
+      }
+    };
+    
+    loadUser();
+
+    // Listen for custom event so it updates when dashboard changes it
+    const handleUserUpdate = () => loadUser();
+    window.addEventListener('partnerUserUpdated', handleUserUpdate);
+
+    return () => {
+      window.removeEventListener('partnerUserUpdated', handleUserUpdate);
+    };
   }, [navigate]);
 
   const handleLogout = () => {
@@ -72,6 +84,32 @@ const PartnerLayout = () => {
             </Link>
 
             <Link 
+              to="/partner/stock" 
+              className={`flex items-center px-4 py-4 rounded-xl font-bold transition-all duration-300 uppercase tracking-wide text-xs ${location.pathname === '/partner/stock' ? 'bg-[#e26a1b] text-white shadow-md transform scale-[1.02]' : 'text-gray-500 hover:bg-gray-50 hover:text-[#1e272e]'}`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 mr-4 transition-transform duration-300 ${location.pathname === '/partner/stock' ? 'scale-110' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              Stock
+            </Link>
+
+            <Link 
+              to="/partner/bulk-orders" 
+              className={`flex items-center px-4 py-4 rounded-xl font-bold transition-all duration-300 uppercase tracking-wide text-xs ${location.pathname === '/partner/bulk-orders' ? 'bg-[#e26a1b] text-white shadow-md transform scale-[1.02]' : 'text-gray-500 hover:bg-gray-50 hover:text-[#1e272e]'}`}
+            >
+              <Archive className={`h-5 w-5 mr-4 transition-transform duration-300 ${location.pathname === '/partner/bulk-orders' ? 'scale-110' : ''}`} />
+              Bulk Orders
+            </Link>
+
+            <Link 
+              to="/partner/messages" 
+              className={`flex items-center px-4 py-4 rounded-xl font-bold transition-all duration-300 uppercase tracking-wide text-xs ${location.pathname === '/partner/messages' ? 'bg-[#e26a1b] text-white shadow-md transform scale-[1.02]' : 'text-gray-500 hover:bg-gray-50 hover:text-[#1e272e]'}`}
+            >
+              <MessageSquare className={`h-5 w-5 mr-4 transition-transform duration-300 ${location.pathname === '/partner/messages' ? 'scale-110' : ''}`} />
+              Messages
+            </Link>
+
+            <Link 
               to="/partner/earnings" 
               className={`flex items-center px-4 py-4 rounded-xl font-bold transition-all duration-300 uppercase tracking-wide text-xs ${location.pathname === '/partner/earnings' ? 'bg-[#e26a1b] text-white shadow-md transform scale-[1.02]' : 'text-gray-500 hover:bg-gray-50 hover:text-[#1e272e]'}`}
             >
@@ -109,7 +147,11 @@ const PartnerLayout = () => {
               </div>
               <div>
                 <span className="block text-sm font-black text-[#1e272e] truncate w-24 uppercase">{partnerUser?.company || partnerUser?.name || 'Partner'}</span>
-                <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider text-[#2ed573] mt-0.5"><span className="w-1.5 h-1.5 rounded-full bg-[#2ed573] mr-1.5"></span>Online</span>
+                {partnerUser?.is_paused ? (
+                  <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider text-[#e26a1b] mt-0.5"><span className="w-1.5 h-1.5 rounded-full bg-[#e26a1b] mr-1.5 animate-pulse"></span>Paused</span>
+                ) : (
+                  <span className="inline-flex items-center text-[9px] font-bold uppercase tracking-wider text-[#2ed573] mt-0.5"><span className="w-1.5 h-1.5 rounded-full bg-[#2ed573] mr-1.5"></span>Online</span>
+                )}
               </div>
             </div>
             <button 
