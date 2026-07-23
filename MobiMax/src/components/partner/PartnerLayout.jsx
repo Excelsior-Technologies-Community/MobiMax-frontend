@@ -36,13 +36,13 @@ const PartnerLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f1f2f6] flex p-4 md:p-6 gap-6 font-sans selection:bg-[#e26a1b] selection:text-white relative overflow-hidden text-[#1e272e]" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+    <div className="h-screen bg-[#f1f2f6] flex p-4 md:p-6 gap-6 font-sans selection:bg-[#e26a1b] selection:text-white relative overflow-hidden text-[#1e272e]" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
       
       {/* Sidebar */}
       <div className="w-[280px] bg-white rounded-2xl flex flex-col shadow-xl overflow-hidden relative z-20 flex-shrink-0 border border-gray-100">
         <Link to="/" className="pt-8 pb-6 px-6 flex items-center justify-start hover:opacity-80 transition-opacity cursor-pointer border-b border-gray-100">
-          <img src="https://enovathemes.com/mobimax/wp-content/uploads/logo-retina.png" alt="MobiMax Logo" className="h-6 object-contain" />
-          <span className="ml-3 text-[10px] font-black text-white uppercase tracking-widest bg-[#e26a1b] px-2.5 py-1 rounded-sm flex-shrink-0 shadow-sm">Partner</span>
+          <img src="/mobimax-logo.png" alt="MobiMax Logo" className="h-20 -my-4 -ml-2 object-contain" />
+          <span className="ml-0 text-[10px] font-black text-white uppercase tracking-widest bg-[#e26a1b] px-2.5 py-1 rounded-sm flex-shrink-0 shadow-sm relative z-10">Partner</span>
         </Link>
         
         <div className="flex-1 overflow-y-auto py-4 px-4 space-y-1">

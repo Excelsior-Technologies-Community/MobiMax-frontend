@@ -53,7 +53,7 @@ const TopBar = () => {
   const getInitial = (name) => name ? name.charAt(0).toUpperCase() : 'U';
 
   return (
-    <div className="bg-[#f5f5f5] border-b border-[#e5e5e5] py-2 text-[13px] text-[#666]">
+    <div className="bg-[#f5f5f5] border-b border-[#e5e5e5] py-2 text-[13px] text-[#666] relative z-[70]">
       <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center px-[15px] gap-2 md:gap-0">
         {/* Left Side: Contact Info */}
         <div className="flex flex-wrap justify-center md:justify-start gap-3 md:gap-5">

@@ -9,9 +9,9 @@ const MiddleBar = () => {
         <div className="flex-shrink-0">
           <Link to="/">
             <img 
-              src="https://enovathemes.com/mobimax/wp-content/uploads/logo-retina.png" 
+              src="/mobimax-logo.png" 
               alt="MobiMax" 
-              className="h-7 md:h-8 object-contain"
+              className="h-24 md:h-32 -my-6 -ml-4 object-contain"
             />
           </Link>
         </div>

@@ -3,6 +3,7 @@ import PublicLayout from './components/layout/PublicLayout';
 import AdminLayout from './components/admin/AdminLayout';
 import PartnerLayout from './components/partner/PartnerLayout';
 import SessionManager from './components/auth/SessionManager';
+import ScrollToTop from './components/layout/ScrollToTop';
 
 import HomePage from './pages/Home/HomePage';
 import Login from './pages/Auth/Login';
@@ -29,6 +30,7 @@ import PartnerProducts from './pages/Partner/PartnerProducts';
 export default function App() {
   return (
     <Router>
+      <ScrollToTop />
       <SessionManager>
         <Routes>
           <Route element={<PublicLayout />}>

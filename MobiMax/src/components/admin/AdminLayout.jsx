@@ -62,7 +62,9 @@ const AdminLayout = () => {
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out md:flex w-64 bg-[#0A0D14] text-white flex flex-col border-r border-[#1C212D]`}>
         <div className="h-20 flex items-center justify-center border-b border-[#1C212D]">
-          <img src="https://enovathemes.com/mobimax/wp-content/uploads/logo-retina.png" alt="MobiMax Logo" className="h-8 object-contain brightness-0 invert" />
+          <div className="bg-white px-4 py-1.5 rounded-xl shadow-sm">
+            <img src="/mobimax-logo.png" alt="MobiMax Logo" className="h-10 object-contain" />
+          </div>
         </div>
         
         <div className="flex-1 overflow-y-auto py-6">

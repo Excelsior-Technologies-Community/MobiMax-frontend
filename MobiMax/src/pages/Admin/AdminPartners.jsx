@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, XCircle, Clock, Users, Trash2, Eye, X } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Users, Trash2, Eye, X, User, Store, MapPin, CreditCard, ZoomIn, FileText, Building2, Phone, Mail, Image as ImageIcon } from 'lucide-react';
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:5001');
@@ -8,6 +8,7 @@ const AdminPartners = () => {
   const [partnersList, setPartnersList] = useState([]);
   const [selectedPartner, setSelectedPartner] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
     const fetchPartners = async () => {
@@ -87,55 +88,75 @@ const AdminPartners = () => {
     if (!selectedPartner) return null;
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-fade-in">
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-scale-in">
+          
+          {/* Header */}
+          <div className="px-8 py-5 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                KYC Review: {selectedPartner.company}
-              </h2>
-              <p className="text-sm text-gray-500 mt-1">Review documents and details before approving.</p>
+              <div className="flex items-center gap-3 mb-1">
+                <h2 className="text-xl font-bold text-gray-900">
+                  KYC Review
+                </h2>
+                <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase border ${statusColors[selectedPartner.status] || statusColors.pending}`}>
+                  {selectedPartner.status.replace('_', ' ')}
+                </span>
+              </div>
+              <p className="text-sm text-gray-500">Review documents and details for <span className="font-semibold text-gray-700">{selectedPartner.company}</span></p>
             </div>
-            <button onClick={() => setSelectedPartner(null)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <button onClick={() => setSelectedPartner(null)} className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
           
-          <div className="p-6 overflow-y-auto flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Info Column */}
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider border-b pb-2 mb-3">Owner Details</h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+          {/* Content */}
+          <div className="p-8 overflow-y-auto flex-1 bg-gray-50/50">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              
+              {/* Left Column: Details */}
+              <div className="lg:col-span-5 space-y-6 pb-4">
+                
+                {/* Owner Details Card */}
+                <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                  <div className="px-5 py-3 border-b border-gray-50 bg-gray-50/80 flex items-center gap-2">
+                    <User className="w-4 h-4 text-blue-500" />
+                    <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Owner Details</h3>
+                  </div>
+                  <div className="p-5 space-y-4">
                     <div>
-                      <p className="text-gray-500 mb-1">Name</p>
+                      <p className="text-xs text-gray-500 mb-1 flex items-center gap-1.5"><User className="w-3.5 h-3.5" /> Full Name</p>
                       <p className="font-semibold text-gray-900">{selectedPartner.name}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 mb-1">Email</p>
-                      <p className="font-semibold text-gray-900">{selectedPartner.email}</p>
+                      <p className="text-xs text-gray-500 mb-1 flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Email</p>
+                      <p className="font-medium text-gray-900 break-words" title={selectedPartner.email}>{selectedPartner.email}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 mb-1">Phone</p>
-                      <p className="font-semibold text-gray-900">{selectedPartner.phone}</p>
+                      <p className="text-xs text-gray-500 mb-1 flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Phone</p>
+                      <p className="font-medium text-gray-900">{selectedPartner.phone}</p>
                     </div>
                   </div>
                 </div>
 
-                <div>
-                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider border-b pb-2 mb-3">Store Details</h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-500 mb-1">Store Name</p>
-                      <p className="font-semibold text-gray-900">{selectedPartner.store_name || 'N/A'}</p>
+                {/* Store Details Card */}
+                <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                  <div className="px-5 py-3 border-b border-gray-50 bg-gray-50/80 flex items-center gap-2">
+                    <Store className="w-4 h-4 text-emerald-500" />
+                    <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Store Details</h3>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1 flex items-center gap-1.5"><Building2 className="w-3.5 h-3.5" /> Store Name</p>
+                        <p className="font-semibold text-gray-900">{selectedPartner.store_name || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1 flex items-center gap-1.5"><Store className="w-3.5 h-3.5" /> Category</p>
+                        <p className="font-medium text-gray-900">{selectedPartner.store_category || 'N/A'}</p>
+                      </div>
                     </div>
                     <div>
-                      <p className="text-gray-500 mb-1">Category</p>
-                      <p className="font-semibold text-gray-900">{selectedPartner.store_category || 'N/A'}</p>
-                    </div>
-                    <div className="col-span-2">
-                      <p className="text-gray-500 mb-1">Address</p>
-                      <p className="font-semibold text-gray-900">
+                      <p className="text-xs text-gray-500 mb-1 flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> Address</p>
+                      <p className="text-sm font-medium text-gray-900 leading-relaxed">
                         {selectedPartner.store_address || 'N/A'}<br/>
                         {selectedPartner.store_city || ''}, {selectedPartner.store_state || ''} {selectedPartner.store_pincode || ''}<br/>
                         {selectedPartner.store_country || ''}
@@ -144,63 +165,90 @@ const AdminPartners = () => {
                   </div>
                 </div>
 
-                <div>
-                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider border-b pb-2 mb-3">Identification</h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                {/* Identification Card */}
+                <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                  <div className="px-5 py-3 border-b border-gray-50 bg-gray-50/80 flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-purple-500" />
+                    <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Identification</h3>
+                  </div>
+                  <div className="p-5 grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-gray-500 mb-1">Aadhar Number</p>
-                      <p className="font-semibold text-gray-900">{selectedPartner.aadhar_number || 'N/A'}</p>
+                      <p className="text-xs text-gray-500 mb-1">Aadhar Number</p>
+                      <p className="font-mono font-medium text-gray-900 tracking-wide">{selectedPartner.aadhar_number || 'N/A'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-500 mb-1">PAN Number</p>
-                      <p className="font-semibold text-gray-900">{selectedPartner.pan_number || 'N/A'}</p>
+                      <p className="text-xs text-gray-500 mb-1">PAN Number</p>
+                      <p className="font-mono font-medium text-gray-900 tracking-wide uppercase">{selectedPartner.pan_number || 'N/A'}</p>
                     </div>
                   </div>
                 </div>
+
               </div>
 
-              {/* Documents Column */}
-              <div className="space-y-6">
-                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider border-b pb-2 mb-3">Uploaded Documents</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Store Logo</p>
-                    <div className="h-32 bg-gray-100 rounded-lg border border-gray-200 overflow-hidden flex items-center justify-center">
-                      {selectedPartner.store_logo ? <img src={selectedPartner.store_logo} alt="Logo" className="object-cover w-full h-full" /> : <span className="text-gray-400 text-xs">No image</span>}
-                    </div>
+              {/* Right Column: Documents */}
+              <div className="lg:col-span-7">
+                <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden h-full">
+                  <div className="px-5 py-3 border-b border-gray-50 bg-gray-50/80 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-amber-500" />
+                    <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Uploaded Documents</h3>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Partner Photo</p>
-                    <div className="h-32 bg-gray-100 rounded-lg border border-gray-200 overflow-hidden flex items-center justify-center">
-                      {selectedPartner.partner_photo ? <img src={selectedPartner.partner_photo} alt="Photo" className="object-cover w-full h-full" /> : <span className="text-gray-400 text-xs">No image</span>}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Aadhar Card</p>
-                    <div className="h-32 bg-gray-100 rounded-lg border border-gray-200 overflow-hidden flex items-center justify-center">
-                      {selectedPartner.aadhar_card ? <img src={selectedPartner.aadhar_card} alt="Aadhar" className="object-cover w-full h-full" /> : <span className="text-gray-400 text-xs">No document</span>}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 mb-2">PAN Card</p>
-                    <div className="h-32 bg-gray-100 rounded-lg border border-gray-200 overflow-hidden flex items-center justify-center">
-                      {selectedPartner.pan_card ? <img src={selectedPartner.pan_card} alt="PAN" className="object-cover w-full h-full" /> : <span className="text-gray-400 text-xs">No document</span>}
+                  
+                  <div className="p-6">
+                    <div className="grid grid-cols-2 gap-6">
+                      
+                      {/* Document Item Component */}
+                      {[
+                        { title: 'Store Logo', url: selectedPartner.store_logo, icon: ImageIcon },
+                        { title: 'Partner Photo', url: selectedPartner.partner_photo, icon: User },
+                        { title: 'Aadhar Card', url: selectedPartner.aadhar_card, icon: CreditCard },
+                        { title: 'PAN Card', url: selectedPartner.pan_card, icon: CreditCard }
+                      ].map((doc, idx) => (
+                        <div key={idx} className="flex flex-col">
+                          <p className="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1.5">
+                            <doc.icon className="w-3.5 h-3.5 text-gray-400" />
+                            {doc.title}
+                          </p>
+                          <div 
+                            className="group relative h-40 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 overflow-hidden flex items-center justify-center cursor-pointer transition-all hover:border-[#e26a1b] hover:shadow-md"
+                            onClick={() => doc.url && setPreviewImage(doc.url)}
+                          >
+                            {doc.url ? (
+                              <>
+                                <img src={doc.url} alt={doc.title} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105" />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                  <div className="bg-white/90 text-gray-900 px-3 py-1.5 rounded-lg shadow-sm font-medium text-sm flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
+                                    <ZoomIn className="w-4 h-4" /> Zoom
+                                  </div>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="flex flex-col items-center text-gray-400">
+                                <FileText className="w-8 h-8 mb-2 opacity-20" />
+                                <span className="text-xs font-medium">No document</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      
                     </div>
                   </div>
                 </div>
               </div>
+              
             </div>
           </div>
           
-          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-            <button onClick={() => setSelectedPartner(null)} className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          {/* Footer Actions */}
+          <div className="px-8 py-5 border-t border-gray-100 bg-white flex justify-end gap-3 sticky bottom-0 z-10">
+            <button onClick={() => setSelectedPartner(null)} className="px-5 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
               Close
             </button>
-            <button onClick={() => updatePartnerStatus(selectedPartner.id, 'suspended')} className="px-4 py-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors shadow-sm">
-              Reject / Suspend
+            <button onClick={() => updatePartnerStatus(selectedPartner.id, 'suspended')} className="px-5 py-2.5 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 rounded-xl transition-colors shadow-sm flex items-center gap-2">
+              <XCircle className="w-4 h-4" /> Reject / Suspend
             </button>
-            <button onClick={() => updatePartnerStatus(selectedPartner.id, 'active')} className="px-4 py-2 text-sm font-semibold text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg transition-colors shadow-sm">
-              Approve Partner
+            <button onClick={() => updatePartnerStatus(selectedPartner.id, 'active')} className="px-5 py-2.5 text-sm font-semibold text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl transition-colors shadow-sm flex items-center gap-2">
+              <CheckCircle className="w-4 h-4" /> Approve Partner
             </button>
           </div>
         </div>
@@ -333,6 +381,16 @@ const AdminPartners = () => {
       </div>
       
       {renderModal()}
+      
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/90 backdrop-blur-sm animate-fade-in" onClick={() => setPreviewImage(null)}>
+          <button onClick={() => setPreviewImage(null)} className="absolute top-4 right-4 p-2 text-white hover:text-gray-300 transition-colors">
+            <X className="w-8 h-8" />
+          </button>
+          <img src={previewImage} alt="Preview" className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
     </div>
   );
 };

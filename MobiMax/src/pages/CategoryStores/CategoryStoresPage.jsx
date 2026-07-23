@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Store, MapPin, Package } from 'lucide-react';
+import { Store, MapPin, Package, ArrowLeft } from 'lucide-react';
 
 const CategoryStoresPage = () => {
   const { categoryName } = useParams();
@@ -35,6 +35,14 @@ const CategoryStoresPage = () => {
     <div className="bg-[#f8f9fa] min-h-screen py-12" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
       <div className="max-w-[1200px] mx-auto px-4 md:px-6">
         
+        {/* Back Navigation */}
+        <div className="mb-6">
+          <Link to="/" className="inline-flex items-center text-gray-500 hover:text-[#e26a1b] font-bold text-sm transition-colors">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Shop Departments
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="mb-10 text-center">
           <h1 className="text-3xl md:text-4xl font-black text-[#1e272e] uppercase tracking-tight mb-4">
@@ -86,9 +94,9 @@ const CategoryStoresPage = () => {
                 <h3 className="text-xl font-black text-[#1e272e] text-center mb-1 group-hover:text-[#e26a1b] transition-colors">{store.store_name}</h3>
                 <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">{store.company}</p>
                 
-                <div className="flex items-center text-gray-500 text-sm font-medium bg-gray-50 px-4 py-2 rounded-full w-full justify-center group-hover:bg-[#e26a1b]/5 transition-colors">
-                  <MapPin className="w-4 h-4 mr-1.5 text-gray-400 group-hover:text-[#e26a1b] transition-colors" />
-                  {store.city || 'Location unavailable'}
+                <div className="flex items-start text-gray-600 text-sm font-medium bg-gray-50 px-4 py-3 rounded-xl w-full justify-center group-hover:bg-[#e26a1b]/5 transition-colors text-center">
+                  <MapPin className="w-4 h-4 mr-1.5 shrink-0 mt-0.5 text-gray-400 group-hover:text-[#e26a1b] transition-colors" />
+                  <span className="leading-snug">{store.store_address ? `${store.store_address}, ${store.city || ''}` : store.city || 'Location unavailable'}</span>
                 </div>
               </Link>
             ))}
