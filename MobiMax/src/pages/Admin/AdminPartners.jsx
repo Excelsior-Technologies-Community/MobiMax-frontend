@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, XCircle, Clock, Users, Trash2, Eye, X, User, Store, MapPin, CreditCard, ZoomIn, FileText, Building2, Phone, Mail, Image as ImageIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { CheckCircle, XCircle, Clock, Users, Trash2, Eye, X, User, Store, MapPin, CreditCard, ZoomIn, FileText, Building2, Phone, Mail, Image as ImageIcon, Activity } from 'lucide-react';
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:5001');
@@ -355,6 +356,13 @@ const AdminPartners = () => {
                     </td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex justify-end gap-2">
+                        <Link 
+                          to={`/admin/partners/${p.id}/activity`}
+                          className="flex items-center text-xs font-semibold text-[#e26a1b] hover:text-white border border-[#e26a1b]/30 hover:bg-[#e26a1b] hover:border-[#e26a1b] px-3 py-1.5 rounded-lg transition-all duration-200 shadow-sm"
+                        >
+                          <Activity className="w-3.5 h-3.5 mr-1" />
+                          Activity
+                        </Link>
                         <button 
                           onClick={() => setSelectedPartner(p)} 
                           className="flex items-center text-xs font-semibold text-blue-600 hover:text-white border border-blue-200 hover:bg-blue-500 hover:border-blue-500 px-3 py-1.5 rounded-lg transition-all duration-200 shadow-sm"

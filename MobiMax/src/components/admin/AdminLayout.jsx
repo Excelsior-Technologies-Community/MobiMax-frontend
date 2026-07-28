@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Settings, LogOut, Search, Bell, ChevronDown, ChevronUp, Image, Mail, Layers } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, Search, Bell, ChevronDown, ChevronUp, Image, Mail, Layers, Package, Star, Activity } from 'lucide-react';
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:5001');
@@ -50,7 +50,7 @@ const AdminLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FB] flex">
+    <div className="h-screen bg-[#F8F9FB] flex overflow-hidden">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
@@ -66,77 +66,132 @@ const AdminLayout = () => {
         </div>
         
         <div className="flex-1 overflow-y-auto py-6">
-          <nav className="space-y-1.5 px-4">
-            <Link 
-              to="/admin/dashboard" 
-              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/dashboard' ? 'bg-[#e26a1b] text-white shadow-[0_4px_12px_rgba(226,106,27,0.3)]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
-            >
-              <LayoutDashboard className={`h-5 w-5 mr-3.5 ${location.pathname === '/admin/dashboard' ? 'text-white' : ''}`} />
-              Dashboard
-            </Link>
-
-            {/* Accordion Menu */}
+          <nav className="space-y-6 px-4">
+            
+            {/* Main Section */}
             <div>
-              <button 
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname.includes('/admin/users') || location.pathname.includes('/admin/partners') ? 'bg-[#e26a1b]/10 text-[#e26a1b]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
-              >
-                <div className="flex items-center">
-                  <Users className={`h-5 w-5 mr-3.5 ${location.pathname.includes('/admin/users') || location.pathname.includes('/admin/partners') ? 'text-[#e26a1b]' : ''}`} />
-                  Users & Partners
-                </div>
-                {isUserMenuOpen ? <ChevronUp className="h-4 w-4 text-gray-500" /> : <ChevronDown className="h-4 w-4 text-gray-500" />}
-              </button>
-              
-              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isUserMenuOpen ? 'max-h-40 opacity-100 mt-1.5' : 'max-h-0 opacity-0'}`}>
-                <div className="space-y-1.5 pl-12 pr-2 py-2 rounded-xl bg-gray-50 border border-gray-100">
-                  <Link 
-                    to="/admin/partners" 
-                    className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/admin/partners' ? 'text-[#e26a1b] bg-white shadow-sm font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-white'}`}
+              <h3 className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Main</h3>
+              <div className="space-y-1">
+                <Link 
+                  to="/admin/dashboard" 
+                  className={`flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/dashboard' ? 'bg-[#e26a1b] text-white shadow-md shadow-[#e26a1b]/20' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                >
+                  <LayoutDashboard className={`h-5 w-5 mr-3.5 ${location.pathname === '/admin/dashboard' ? 'text-white' : ''}`} />
+                  Dashboard
+                </Link>
+              </div>
+            </div>
+
+            {/* User Management Section */}
+            <div>
+              <h3 className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">User Management</h3>
+              <div className="space-y-1">
+                <div>
+                  <button 
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${location.pathname.includes('/admin/users') || location.pathname.includes('/admin/partners') ? 'bg-[#e26a1b]/10 text-[#e26a1b]' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
                   >
-                    Partners
-                  </Link>
-                  <Link 
-                    to="/admin/users" 
-                    className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/admin/users' ? 'text-[#e26a1b] bg-white shadow-sm font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-white'}`}
-                  >
-                    End User
-                  </Link>
+                    <div className="flex items-center">
+                      <Users className={`h-5 w-5 mr-3.5 ${location.pathname.includes('/admin/users') || location.pathname.includes('/admin/partners') ? 'text-[#e26a1b]' : ''}`} />
+                      Users & Partners
+                    </div>
+                    {isUserMenuOpen ? <ChevronUp className="h-4 w-4 text-gray-500" /> : <ChevronDown className="h-4 w-4 text-gray-500" />}
+                  </button>
+                  
+                  <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isUserMenuOpen ? 'max-h-40 opacity-100 mt-1' : 'max-h-0 opacity-0'}`}>
+                    <div className="space-y-1 pl-12 pr-2 py-2">
+                      <Link 
+                        to="/admin/partners" 
+                        className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${location.pathname.includes('/admin/partners') ? 'text-[#e26a1b] bg-[#e26a1b]/5 font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
+                      >
+                        Partners
+                      </Link>
+                      <Link 
+                        to="/admin/users" 
+                        className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${location.pathname === '/admin/users' ? 'text-[#e26a1b] bg-[#e26a1b]/5 font-bold' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
+                      >
+                        End User
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <Link 
-              to="/admin/categories" 
-              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/categories' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
-            >
-              <Layers className="h-5 w-5 mr-3.5" />
-              Categories
-            </Link>
+            {/* Catalog & Activity Section */}
+            <div>
+              <h3 className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Catalog & Activity</h3>
+              <div className="space-y-1">
+                <Link 
+                  to="/admin/products" 
+                  className={`flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/products' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                >
+                  <Package className="h-5 w-5 mr-3.5" />
+                  All Products
+                </Link>
 
-            <Link 
-              to="/admin/advertisements" 
-              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/advertisements' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
-            >
-              <Image className="h-5 w-5 mr-3.5" />
-              Advertisements
-            </Link>
+                <Link 
+                  to="/admin/reviews" 
+                  className={`flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/reviews' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                >
+                  <Star className="h-5 w-5 mr-3.5" />
+                  Reviews
+                </Link>
 
-            <Link 
-              to="/admin/messages" 
-              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/messages' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
-            >
-              <Mail className="h-5 w-5 mr-3.5" />
-              Messages
-            </Link>
+                <Link 
+                  to="/admin/activity" 
+                  className={`flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/activity' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                >
+                  <Activity className="h-5 w-5 mr-3.5" />
+                  Activity Log
+                </Link>
+              </div>
+            </div>
 
-            <Link 
-              to="/settings" 
-              className={`flex items-center px-4 py-3 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/settings' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
-            >
-              <Settings className="h-5 w-5 mr-3.5" />
-              Settings
-            </Link>
+            {/* Content Management Section */}
+            <div>
+              <h3 className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Content Management</h3>
+              <div className="space-y-1">
+                <Link 
+                  to="/admin/categories" 
+                  className={`flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/categories' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                >
+                  <Layers className="h-5 w-5 mr-3.5" />
+                  Categories
+                </Link>
+
+                <Link 
+                  to="/admin/advertisements" 
+                  className={`flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/advertisements' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                >
+                  <Image className="h-5 w-5 mr-3.5" />
+                  Advertisements
+                </Link>
+
+                <Link 
+                  to="/admin/messages" 
+                  className={`flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/messages' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                >
+                  <Mail className="h-5 w-5 mr-3.5" />
+                  Messages
+                </Link>
+              </div>
+            </div>
+
+            {/* System Section */}
+            <div>
+              <h3 className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">System</h3>
+              <div className="space-y-1">
+                <Link 
+                  to="/admin/settings" 
+                  className={`flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/settings' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                >
+                  <Settings className="h-5 w-5 mr-3.5" />
+                  Settings
+                </Link>
+              </div>
+            </div>
+
           </nav>
         </div>
 
