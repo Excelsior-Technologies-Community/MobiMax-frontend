@@ -141,67 +141,66 @@ const StoreProductsPage = () => {
                 {/* Left Sidebar (Filters) - Sticky */}
                 <div className="lg:w-1/4 shrink-0 space-y-6 lg:sticky lg:top-28 z-10 lg:max-h-[calc(100vh-140px)] overflow-y-auto no-scrollbar pb-4">
                   {/* Filter Sidebar */}
-                  <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden">
-                    <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                      <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                        <Filter className="w-4.5 h-4.5 text-[#e26a1b]" /> Filters
+                  {/* Filter Sidebar */}
+                  <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden relative">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#e26a1b] to-[#ff9f43]"></div>
+                    <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gradient-to-b from-gray-50/80 to-white">
+                      <h3 className="text-lg font-black text-[#1e272e] flex items-center gap-2.5">
+                        <Filter className="w-5 h-5 text-[#e26a1b]" /> Filters
                       </h3>
                       <button 
                         onClick={clearFilters}
-                        className="text-xs font-semibold text-gray-500 hover:text-[#e26a1b] flex items-center gap-1.5 transition-colors bg-white px-2.5 py-1.5 rounded-md border border-gray-200 hover:border-[#e26a1b]/30 shadow-sm"
+                        className="text-xs font-bold text-gray-500 hover:text-white flex items-center gap-1.5 transition-all duration-300 bg-white hover:bg-[#1e272e] px-3 py-1.5 rounded-lg border border-gray-200 hover:border-[#1e272e] shadow-sm hover:shadow-md group"
                       >
-                        <RefreshCcw className="w-3.5 h-3.5" /> Clear
+                        <RefreshCcw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" /> Clear
                       </button>
                     </div>
                     
-                    <div className="p-5 space-y-7">
+                    <div className="p-6 space-y-8">
                       {/* Price Filter */}
                       <div>
-                        <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-3 flex items-center gap-2">
-                          <SlidersHorizontal className="w-4 h-4 text-gray-400" /> Price Range
+                        <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                          <SlidersHorizontal className="w-4 h-4 text-gray-300" /> Price Range
                         </h4>
                         <div className="flex items-center gap-3">
                           <div className="relative flex-1 group">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#e26a1b] transition-colors text-sm font-medium">£</span>
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#e26a1b] transition-colors text-sm font-bold">£</span>
                             <input 
                               type="number" 
                               placeholder="Min" 
                               value={minPrice}
                               onChange={(e) => setMinPrice(e.target.value)}
-                              className="w-full pl-7 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#e26a1b]/20 focus:border-[#e26a1b] outline-none transition-all shadow-sm"
+                              className="w-full pl-8 pr-3 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 focus:bg-white focus:ring-4 focus:ring-[#e26a1b]/10 focus:border-[#e26a1b] outline-none transition-all shadow-sm placeholder:font-medium placeholder:text-gray-400"
                             />
                           </div>
                           <span className="text-gray-300 font-bold">-</span>
                           <div className="relative flex-1 group">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#e26a1b] transition-colors text-sm font-medium">£</span>
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#e26a1b] transition-colors text-sm font-bold">£</span>
                             <input 
                               type="number" 
                               placeholder="Max" 
                               value={maxPrice}
                               onChange={(e) => setMaxPrice(e.target.value)}
-                              className="w-full pl-7 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#e26a1b]/20 focus:border-[#e26a1b] outline-none transition-all shadow-sm"
+                              className="w-full pl-8 pr-3 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 focus:bg-white focus:ring-4 focus:ring-[#e26a1b]/10 focus:border-[#e26a1b] outline-none transition-all shadow-sm placeholder:font-medium placeholder:text-gray-400"
                             />
                           </div>
                         </div>
                       </div>
 
-                      {/* Availability Filter */}
+                      {/* Availability Filter - Toggle Switch */}
                       <div>
-                        <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">Availability</h4>
-                        <label className="flex items-center gap-3 cursor-pointer group p-2 hover:bg-gray-50 rounded-lg transition-colors -ml-2">
-                          <div className="relative flex items-center justify-center">
+                        <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Availability</h4>
+                        <label className="flex items-center justify-between cursor-pointer group p-3 hover:bg-gray-50 rounded-xl transition-colors border border-transparent hover:border-gray-100 -ml-3">
+                          <span className="text-sm font-bold text-gray-700 group-hover:text-gray-900 transition-colors">In Stock Only</span>
+                          <div className="relative inline-flex items-center">
                             <input 
                               type="checkbox" 
                               checked={inStockOnly}
                               onChange={(e) => setInStockOnly(e.target.checked)}
-                              className="peer sr-only"
+                              className="sr-only peer"
                             />
-                            <div className="w-5 h-5 border-2 border-gray-300 rounded peer-checked:bg-[#e26a1b] peer-checked:border-[#e26a1b] transition-all duration-200 shadow-sm"></div>
-                            <svg className="absolute w-3.5 h-3.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity duration-200 peer-checked:scale-100 scale-50" viewBox="0 0 14 10" fill="none">
-                              <path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#e26a1b] shadow-inner transition-colors duration-300"></div>
                           </div>
-                          <span className="text-sm font-bold text-gray-600 group-hover:text-gray-900 transition-colors">In Stock Only</span>
                         </label>
                       </div>
                       
