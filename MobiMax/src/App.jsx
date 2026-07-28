@@ -38,60 +38,63 @@ import PartnerMessages from './pages/Partner/PartnerMessages';
 
 import { CartProvider } from './contexts/CartContext';
 import { WishlistProvider } from './contexts/WishlistContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 
 export default function App() {
   return (
-    <CartProvider>
-      <WishlistProvider>
-        <Router>
-          <ScrollToTop />
-          <SessionManager>
-            <Routes>
-              <Route element={<PublicLayout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<UserSignup />} />
-                <Route path="/partner/login" element={<Login />} />
-                <Route path="/partner/signup" element={<PartnerSignup />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/contact" element={<ContactUs />} />
-                <Route path="/category/:categoryName/stores" element={<CategoryStoresPage />} />
-                <Route path="/store/:storeId/category/:categoryName" element={<StoreProductsPage />} />
-                <Route path="/product/:id" element={<ProductDetailPage />} />
-                <Route path="/wishlist" element={<WishlistPage />} />
-              </Route>
-            
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Navigate to="login" replace />} />
-              <Route path="login" element={<AdminLogin />} />
-              <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="partners" element={<AdminPartners />} />
-              <Route path="partners/:id/activity" element={<AdminPartnerActivity />} />
-              <Route path="reviews" element={<AdminReviews />} />
-              <Route path="activity" element={<AdminActivityLog />} />
-              <Route path="advertisements" element={<AdminAdvertisements />} />
-              <Route path="categories" element={<AdminCategories />} />
-              <Route path="messages" element={<AdminContactMessages />} />
-              <Route path="settings" element={<AdminSettings />} />
-            </Route>
+    <SettingsProvider>
+      <CartProvider>
+        <WishlistProvider>
+          <Router>
+            <ScrollToTop />
+            <SessionManager>
+              <Routes>
+                <Route element={<PublicLayout />}>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<UserSignup />} />
+                  <Route path="/partner/login" element={<Login />} />
+                  <Route path="/partner/signup" element={<PartnerSignup />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/contact" element={<ContactUs />} />
+                  <Route path="/category/:categoryName/stores" element={<CategoryStoresPage />} />
+                  <Route path="/store/:storeId/category/:categoryName" element={<StoreProductsPage />} />
+                  <Route path="/product/:id" element={<ProductDetailPage />} />
+                  <Route path="/wishlist" element={<WishlistPage />} />
+                </Route>
+              
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Navigate to="login" replace />} />
+                  <Route path="login" element={<AdminLogin />} />
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="partners" element={<AdminPartners />} />
+                  <Route path="partners/:id/activity" element={<AdminPartnerActivity />} />
+                  <Route path="reviews" element={<AdminReviews />} />
+                  <Route path="activity" element={<AdminActivityLog />} />
+                  <Route path="advertisements" element={<AdminAdvertisements />} />
+                  <Route path="categories" element={<AdminCategories />} />
+                  <Route path="messages" element={<AdminContactMessages />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
 
-            <Route path="/partner" element={<PartnerLayout />}>
-              <Route index element={<Navigate to="dashboard" replace />} />
-              <Route path="dashboard" element={<PartnerDashboard />} />
-              <Route path="orders" element={<PartnerOrders />} />
-              <Route path="products" element={<PartnerProducts />} />
-              <Route path="stock" element={<PartnerStock />} />
-              <Route path="bulk-orders" element={<PartnerBulkOrders />} />
-              <Route path="messages" element={<PartnerMessages />} />
-              <Route path="earnings" element={<PartnerDashboard />} />
-              <Route path="settings" element={<PartnerDashboard />} />
-            </Route>
-          </Routes>
-          </SessionManager>
-        </Router>
-      </WishlistProvider>
-    </CartProvider>
+                <Route path="/partner" element={<PartnerLayout />}>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<PartnerDashboard />} />
+                  <Route path="orders" element={<PartnerOrders />} />
+                  <Route path="products" element={<PartnerProducts />} />
+                  <Route path="stock" element={<PartnerStock />} />
+                  <Route path="bulk-orders" element={<PartnerBulkOrders />} />
+                  <Route path="messages" element={<PartnerMessages />} />
+                  <Route path="earnings" element={<PartnerDashboard />} />
+                  <Route path="settings" element={<PartnerDashboard />} />
+                </Route>
+              </Routes>
+            </SessionManager>
+          </Router>
+        </WishlistProvider>
+      </CartProvider>
+    </SettingsProvider>
   );
 }
