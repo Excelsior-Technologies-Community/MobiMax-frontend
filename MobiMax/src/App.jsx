@@ -69,7 +69,6 @@ export default function App() {
               <Route path="users" element={<AdminUsers />} />
               <Route path="partners" element={<AdminPartners />} />
               <Route path="partners/:id/activity" element={<AdminPartnerActivity />} />
-              <Route path="products" element={<AdminProducts />} />
               <Route path="reviews" element={<AdminReviews />} />
               <Route path="activity" element={<AdminActivityLog />} />
               <Route path="advertisements" element={<AdminAdvertisements />} />

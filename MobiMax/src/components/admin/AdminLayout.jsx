@@ -123,14 +123,6 @@ const AdminLayout = () => {
               <h3 className="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Catalog & Activity</h3>
               <div className="space-y-1">
                 <Link 
-                  to="/admin/products" 
-                  className={`flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/products' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
-                >
-                  <Package className="h-5 w-5 mr-3.5" />
-                  All Products
-                </Link>
-
-                <Link 
                   to="/admin/reviews" 
                   className={`flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 ${location.pathname === '/admin/reviews' ? 'bg-[#e26a1b]/10 text-[#e26a1b] font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
                 >

@@ -58,7 +58,12 @@ const AdminPartnerActivity = () => {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{partner.company} - Activity</h1>
-          <p className="text-gray-500 text-sm mt-1">{partner.name} • {partner.email}</p>
+          <p className="text-gray-500 text-sm mt-1">
+            {partner.name} • {partner.email}
+            {partner.store_address && (
+              <> • {partner.store_address}{partner.store_city ? `, ${partner.store_city}` : ''}{partner.store_state ? `, ${partner.store_state}` : ''}</>
+            )}
+          </p>
         </div>
         <div className="ml-auto">
            <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase border ${partner.status === 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
