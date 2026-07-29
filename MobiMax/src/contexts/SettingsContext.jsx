@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:5001');
 
 const SettingsContext = createContext();
 
@@ -32,6 +35,14 @@ export const SettingsProvider = ({ children }) => {
       }
     };
     fetchSettings();
+
+    socket.on('settings_updated', (updatedSettings) => {
+      setGlobalSettings(prev => ({ ...prev, ...updatedSettings }));
+    });
+
+    return () => {
+      socket.off('settings_updated');
+    };
   }, []);
 
   return (

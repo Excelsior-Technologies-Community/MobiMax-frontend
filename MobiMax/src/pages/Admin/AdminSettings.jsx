@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Save, Settings as SettingsIcon, Layout, Eye, Bell, Activity, Check, Store, Percent, Shield, Mail, Lock, Timer, Wallet, Calendar, BellRing, Server } from 'lucide-react';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:5001');
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState({
@@ -40,6 +43,14 @@ const AdminSettings = () => {
       }
     };
     fetchSettings();
+
+    socket.on('settings_updated', (updatedSettings) => {
+      setSettings(prev => ({ ...prev, ...updatedSettings }));
+    });
+
+    return () => {
+      socket.off('settings_updated');
+    };
   }, []);
 
   const handleChange = (key, value) => {
