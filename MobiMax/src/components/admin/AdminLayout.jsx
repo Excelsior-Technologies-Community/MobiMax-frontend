@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, Settings, LogOut, Search, Bell, ChevronDown, ChevronUp, Image, Mail, Layers, Package, Star, Activity } from 'lucide-react';
 import io from 'socket.io-client';
+import AdminLockScreen from './AdminLockScreen';
 
 const socket = io('http://localhost:5001');
 
@@ -12,6 +13,10 @@ const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  // App Lock States
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockSettings, setLockSettings] = useState({ enabled: false, biometric: false, timeout: 30, pages: [] });
 
   useEffect(() => {
     const handleStatusUpdate = ({ id, status, company }) => {
@@ -25,12 +30,109 @@ const AdminLayout = () => {
       }
     };
 
+    const handleSettingsUpdated = (settings) => {
+      // If we receive partial settings updates, we should ideally merge them, but
+      // the backend typically emits the entire settings object or just the updated ones.
+      // Assuming it emits the updated fields. We only update if relevant fields are present.
+      if (settings.app_lock_enabled !== undefined || settings.app_lock_pages !== undefined || settings.session_timeout_minutes !== undefined) {
+        setLockSettings(prev => ({
+          enabled: settings.app_lock_enabled !== undefined ? settings.app_lock_enabled === 'true' : prev.enabled,
+          biometric: settings.biometric_enabled !== undefined ? settings.biometric_enabled === 'true' : prev.biometric,
+          timeout: settings.session_timeout_minutes !== undefined ? parseInt(settings.session_timeout_minutes) || 30 : prev.timeout,
+          pages: settings.app_lock_pages !== undefined ? (settings.app_lock_pages || '').split(',').filter(Boolean) : prev.pages
+        }));
+      }
+    };
+
     socket.on('partner_status_updated', handleStatusUpdate);
+    socket.on('settings_updated', handleSettingsUpdated);
 
     return () => {
       socket.off('partner_status_updated', handleStatusUpdate);
+      socket.off('settings_updated', handleSettingsUpdated);
     };
   }, []);
+
+  // Fetch lock settings and check initial lock state
+  useEffect(() => {
+    if (location.pathname === '/admin/login') return;
+
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch('http://localhost:5001/api/admin/settings');
+        const data = await res.json();
+        if (data.status === 'success') {
+          const settings = data.data;
+          const isAppLockEnabled = settings.app_lock_enabled === 'true';
+          
+          setLockSettings({ 
+            enabled: isAppLockEnabled, 
+            biometric: settings.biometric_enabled === 'true', 
+            timeout: parseInt(settings.session_timeout_minutes) || 30,
+            pages: (settings.app_lock_pages || '').split(',').filter(Boolean)
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch lock settings', err);
+      }
+    };
+    fetchSettings();
+  }, []); // Only fetch once on mount, no need to fetch on every route change
+
+  // Check route protection
+  useEffect(() => {
+    if (!lockSettings.enabled || !lockSettings.pages) {
+      setIsLocked(false);
+      return;
+    }
+    
+    const isProtectedRoute = lockSettings.pages.some(r => location.pathname.startsWith(r));
+    
+    if (isProtectedRoute) {
+      const unlockedPaths = JSON.parse(sessionStorage.getItem('admin_unlocked_paths') || '[]');
+      const isPathUnlocked = unlockedPaths.some(p => location.pathname === p || location.pathname.startsWith(p + '/'));
+      
+      if (!isPathUnlocked) {
+        setIsLocked(true);
+      } else {
+        setIsLocked(false);
+      }
+    } else {
+      // Re-lock the session when navigating to an unprotected page
+      // so the next protected page visit will ask for PIN again!
+      sessionStorage.removeItem('admin_unlocked_paths');
+      setIsLocked(false);
+    }
+  }, [location.pathname, lockSettings]);
+
+  // Handle inactivity timeout
+  useEffect(() => {
+    if (!lockSettings.enabled || location.pathname === '/admin/login') return;
+
+    let timeoutId;
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      // If already locked, no need to set a timer
+      if (isLocked) return;
+      
+      timeoutId = setTimeout(() => {
+        sessionStorage.removeItem('admin_unlocked_paths');
+        setIsLocked(true);
+      }, lockSettings.timeout * 60 * 1000);
+    };
+
+    window.addEventListener('mousemove', resetTimer);
+    window.addEventListener('keydown', resetTimer);
+    window.addEventListener('click', resetTimer);
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('mousemove', resetTimer);
+      window.removeEventListener('keydown', resetTimer);
+      window.removeEventListener('click', resetTimer);
+    };
+  }, [lockSettings, location.pathname, isLocked]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -277,8 +379,22 @@ const AdminLayout = () => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 md:p-6 w-full">
-          <Outlet />
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 md:p-6 w-full relative">
+          {isLocked ? (
+            <AdminLockScreen 
+              biometricEnabled={lockSettings.biometric} 
+              onUnlock={() => {
+                const unlockedPaths = JSON.parse(sessionStorage.getItem('admin_unlocked_paths') || '[]');
+                if (!unlockedPaths.includes(location.pathname)) {
+                  unlockedPaths.push(location.pathname);
+                  sessionStorage.setItem('admin_unlocked_paths', JSON.stringify(unlockedPaths));
+                }
+                setIsLocked(false);
+              }} 
+            />
+          ) : (
+            <Outlet />
+          )}
         </main>
       </div>
     </div>

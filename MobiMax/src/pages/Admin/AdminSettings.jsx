@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Save, Settings as SettingsIcon, Layout, Eye, Bell, Activity, Check, Store, Percent, Shield, Mail, Lock, Timer, Wallet, Calendar, BellRing, Server } from 'lucide-react';
+import { Save, Settings as SettingsIcon, Layout, Eye, Bell, Activity, Check, Store, Percent, Shield, Mail, Lock, Timer, Wallet, Calendar, BellRing, Server, Fingerprint } from 'lucide-react';
 import io from 'socket.io-client';
 
 const socket = io('http://localhost:5001');
@@ -19,14 +19,22 @@ const AdminSettings = () => {
     session_timeout_minutes: '30',
     app_lock_enabled: 'false',
     app_lock_pin: '',
+    biometric_enabled: 'false',
     minimum_payout_amount: '5000',
     payout_schedule: 'monthly',
-    email_notifications_enabled: 'true'
+    email_notifications_enabled: 'true',
+    app_lock_pages: '/admin/activity'
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [activeTab, setActiveTab] = useState('general');
+
+  // Change PIN states
+  const [originalPin, setOriginalPin] = useState('');
+  const [isChangingPin, setIsChangingPin] = useState(false);
+  const [oldPinInput, setOldPinInput] = useState('');
+  const [oldPinError, setOldPinError] = useState('');
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -35,6 +43,7 @@ const AdminSettings = () => {
         const json = await res.json();
         if (json.status === 'success') {
           setSettings(prev => ({ ...prev, ...json.data }));
+          setOriginalPin(json.data.app_lock_pin || '');
         }
       } catch (error) {
         console.error('Failed to fetch settings:', error);
@@ -46,6 +55,11 @@ const AdminSettings = () => {
 
     socket.on('settings_updated', (updatedSettings) => {
       setSettings(prev => ({ ...prev, ...updatedSettings }));
+      if (updatedSettings.app_lock_pin !== undefined) {
+        setOriginalPin(updatedSettings.app_lock_pin);
+        setIsChangingPin(false);
+        setOldPinInput('');
+      }
     });
 
     return () => {
@@ -340,23 +354,159 @@ const AdminSettings = () => {
                   </div>
 
                   {settings.app_lock_enabled === 'true' && (
-                    <div className="mt-4 pt-4 border-t border-gray-100 flex items-end gap-4 animate-fade-in-up">
-                      <div className="space-y-2 flex-1 max-w-xs">
-                        <label className="block text-sm font-semibold text-gray-700">Set 4-Digit PIN</label>
-                        <input 
-                          type="password"
-                          maxLength="4"
-                          placeholder="••••"
-                          value={settings.app_lock_pin}
-                          onChange={(e) => handleChange('app_lock_pin', e.target.value.replace(/\D/g, ''))}
-                          className="w-full p-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#e26a1b]/20 focus:border-[#e26a1b] outline-none transition-all text-center tracking-[1em] font-bold text-lg"
-                        />
+                    <div className="mt-4 pt-4 border-t border-gray-100 animate-fade-in-up space-y-6">
+                      <div className="flex items-start gap-4">
+                        <div className="space-y-2 flex-1 max-w-xs">
+                          <label className="block text-sm font-semibold text-gray-700">
+                            {originalPin ? (isChangingPin ? 'Change PIN' : 'Master PIN') : 'Set 4-Digit PIN'}
+                          </label>
+                          
+                          {!originalPin ? (
+                            <input 
+                              type="password"
+                              maxLength="4"
+                              placeholder="••••"
+                              value={settings.app_lock_pin}
+                              onChange={(e) => handleChange('app_lock_pin', e.target.value.replace(/\D/g, ''))}
+                              className="w-full p-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#e26a1b]/20 focus:border-[#e26a1b] outline-none transition-all text-center tracking-[1em] font-bold text-lg"
+                            />
+                          ) : isChangingPin ? (
+                            <div className="space-y-3 animate-fade-in-up">
+                              <div>
+                                <input 
+                                  type="password"
+                                  maxLength="4"
+                                  placeholder="Old PIN"
+                                  value={oldPinInput}
+                                  onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '');
+                                    setOldPinInput(val);
+                                    if (val.length === 4 && val !== originalPin) {
+                                      setOldPinError('Incorrect old PIN');
+                                    } else {
+                                      setOldPinError('');
+                                    }
+                                  }}
+                                  className={`w-full p-3 bg-white border ${oldPinError ? 'border-red-300 focus:ring-red-500/20 text-red-500' : 'border-gray-200 focus:ring-[#e26a1b]/20 focus:border-[#e26a1b]'} rounded-xl focus:bg-white focus:ring-2 outline-none transition-all text-center tracking-[1em] font-bold text-lg`}
+                                />
+                                {oldPinError && <p className="text-red-500 text-xs mt-1 text-center font-medium">{oldPinError}</p>}
+                              </div>
+                              <input 
+                                type="password"
+                                maxLength="4"
+                                placeholder="New PIN"
+                                value={settings.app_lock_pin}
+                                disabled={oldPinInput !== originalPin}
+                                onChange={(e) => handleChange('app_lock_pin', e.target.value.replace(/\D/g, ''))}
+                                className="w-full p-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#e26a1b]/20 focus:border-[#e26a1b] outline-none transition-all text-center tracking-[1em] font-bold text-lg disabled:opacity-50 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex gap-2">
+                              <input 
+                                type="password"
+                                value="****"
+                                disabled
+                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-center tracking-[1em] font-bold text-lg text-gray-500"
+                              />
+                              <button 
+                                onClick={() => {
+                                  setIsChangingPin(true);
+                                  handleChange('app_lock_pin', '');
+                                }}
+                                className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors active:scale-95"
+                              >
+                                Change
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-7 text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-lg border border-amber-100 flex-1">
+                          <strong>Note:</strong> Save settings to activate. Do not forget this PIN!
+                        </div>
                       </div>
-                      <div className="pb-3 text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-lg border border-amber-100 flex-1">
-                        <strong>Note:</strong> Save settings to activate. Do not forget this PIN!
+
+                      <div className="space-y-3">
+                        <label className="block text-sm font-semibold text-gray-700">Select Pages to Lock</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                          {[
+                            { path: '/admin/dashboard', label: 'Dashboard' },
+                            { path: '/admin/users', label: 'Users & Partners' },
+                            { path: '/admin/reviews', label: 'Reviews' },
+                            { path: '/admin/activity', label: 'Activity Log' },
+                            { path: '/admin/categories', label: 'Categories' },
+                            { path: '/admin/advertisements', label: 'Advertisements' },
+                            { path: '/admin/messages', label: 'Messages' },
+                            { path: '/admin/settings', label: 'Settings' }
+                          ].map(page => {
+                            const isSelected = (settings.app_lock_pages || '').includes(page.path);
+                            return (
+                              <label key={page.path} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${isSelected ? 'bg-[#e26a1b]/10 border-[#e26a1b]/30 text-[#e26a1b]' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'}`}>
+                                <input 
+                                  type="checkbox"
+                                  className="w-4 h-4 text-[#e26a1b] rounded border-gray-300 focus:ring-[#e26a1b]"
+                                  checked={isSelected}
+                                  onChange={(e) => {
+                                    const pagesArr = (settings.app_lock_pages || '').split(',').filter(Boolean);
+                                    if (e.target.checked) {
+                                      pagesArr.push(page.path);
+                                    } else {
+                                      const idx = pagesArr.indexOf(page.path);
+                                      if (idx > -1) pagesArr.splice(idx, 1);
+                                    }
+                                    handleChange('app_lock_pages', pagesArr.join(','));
+                                  }}
+                                />
+                                <span className="text-sm font-medium">{page.label}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   )}
+                </div>
+
+                {/* Biometric Settings */}
+                <div className={`p-5 rounded-2xl border transition-all duration-500 relative overflow-hidden ${settings.biometric_enabled === 'true' ? 'bg-[#e26a1b]/5 border-[#e26a1b]/30 shadow-[0_0_20px_rgba(226,106,27,0.1)]' : 'bg-gray-50 border-gray-100 hover:border-[#e26a1b]/20'}`}>
+                  
+                  {/* Dynamic background animation when active */}
+                  {settings.biometric_enabled === 'true' && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#e26a1b]/10 to-transparent w-full h-full animate-biometric-shimmer" style={{ backgroundSize: '200% 100%' }}></div>
+                  )}
+
+                  <div className="flex items-center justify-between relative z-10">
+                    <div className="flex items-start gap-4">
+                      <div className={`mt-1 p-3 rounded-2xl shadow-sm border transition-all duration-500 relative overflow-hidden ${settings.biometric_enabled === 'true' ? 'bg-white border-[#e26a1b]/30 shadow-[0_0_15px_rgba(226,106,27,0.2)]' : 'bg-white border-gray-100'}`}>
+                        <Fingerprint className={`w-7 h-7 transition-colors duration-500 ${settings.biometric_enabled === 'true' ? 'text-[#e26a1b]' : 'text-gray-400'}`} strokeWidth={1.5} />
+                        {/* Scanning laser line effect */}
+                        {settings.biometric_enabled === 'true' && (
+                          <div className="absolute left-0 right-0 h-[2px] bg-[#e26a1b] shadow-[0_0_8px_2px_rgba(226,106,27,0.8)] animate-biometric-scan"></div>
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2">
+                          Biometric Authentication
+                          {settings.biometric_enabled === 'true' && (
+                            <span className="flex h-2.5 w-2.5 relative ml-1">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#e26a1b] opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#e26a1b]"></span>
+                            </span>
+                          )}
+                        </h3>
+                        <p className="text-sm text-gray-500 mt-1 max-w-md">Enable Touch ID, Face ID, or Windows Hello for faster, secure admin access without a password.</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer" 
+                        checked={settings.biometric_enabled === 'true'}
+                        onChange={(e) => handleChange('biometric_enabled', e.target.checked ? 'true' : 'false')}
+                      />
+                      <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#e26a1b]"></div>
+                    </label>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -514,3 +664,25 @@ const AdminSettings = () => {
 };
 
 export default AdminSettings;
+
+// Styles injected for dynamic biometric animation
+const style = document.createElement('style');
+style.innerHTML = `
+  @keyframes biometric-scan {
+    0% { top: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+  @keyframes biometric-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .animate-biometric-scan {
+    animation: biometric-scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  .animate-biometric-shimmer {
+    animation: biometric-shimmer 3s linear infinite;
+  }
+`;
+document.head.appendChild(style);
