@@ -30,6 +30,7 @@ import AdminActivityLog from './pages/Admin/AdminActivityLog';
 import AdminSettings from './pages/Admin/AdminSettings';
 
 import PartnerDashboard from './pages/Partner/PartnerDashboard';
+import PartnerSettings from './pages/Partner/PartnerSettings';
 import PartnerOrders from './pages/Partner/PartnerOrders';
 import PartnerProducts from './pages/Partner/PartnerProducts';
 import PartnerStock from './pages/Partner/PartnerStock';
@@ -88,7 +89,7 @@ export default function App() {
                   <Route path="bulk-orders" element={<PartnerBulkOrders />} />
                   <Route path="messages" element={<PartnerMessages />} />
                   <Route path="earnings" element={<PartnerDashboard />} />
-                  <Route path="settings" element={<PartnerDashboard />} />
+                  <Route path="settings" element={<PartnerSettings />} />
                 </Route>
               </Routes>
             </SessionManager>

@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, ShoppingBag, DollarSign, Settings, LogOut, Bell, ExternalLink, Package, MessageSquare, Archive } from 'lucide-react';
+import io from 'socket.io-client';
+import PartnerLockScreen from './PartnerLockScreen';
+
+const socket = io('http://localhost:5001');
 
 const PartnerLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [partnerUser, setPartnerUser] = useState(null);
+
+  // App Lock States
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockSettings, setLockSettings] = useState({ enabled: false, biometric: false, timeout: 30, pages: [] });
 
   useEffect(() => {
     const token = localStorage.getItem('partnerToken') || sessionStorage.getItem('partnerToken');
@@ -23,7 +31,6 @@ const PartnerLayout = () => {
     
     loadUser();
 
-    // Listen for custom event so it updates when dashboard changes it
     const handleUserUpdate = () => loadUser();
     window.addEventListener('partnerUserUpdated', handleUserUpdate);
 
@@ -32,9 +39,109 @@ const PartnerLayout = () => {
     };
   }, [navigate]);
 
+  // Socket listener for security settings updates
+  useEffect(() => {
+    const handleSettingsUpdated = (settings) => {
+      if (settings.app_lock_enabled !== undefined || settings.app_lock_pages !== undefined) {
+        setLockSettings(prev => ({
+          ...prev,
+          enabled: settings.app_lock_enabled !== undefined ? settings.app_lock_enabled === 'true' : prev.enabled,
+          biometric: settings.biometric_enabled !== undefined ? settings.biometric_enabled === 'true' : prev.biometric,
+          pages: settings.app_lock_pages !== undefined ? (settings.app_lock_pages || '').split(',').filter(Boolean) : prev.pages
+        }));
+      }
+    };
+
+    socket.on('partner_settings_updated', handleSettingsUpdated);
+    return () => {
+      socket.off('partner_settings_updated', handleSettingsUpdated);
+    };
+  }, []);
+
+  // Fetch initial security lock settings
+  useEffect(() => {
+    if (location.pathname === '/partner/login') return;
+
+    const fetchSettings = async () => {
+      try {
+        const token = localStorage.getItem('partnerToken') || sessionStorage.getItem('partnerToken');
+        const res = await fetch('http://localhost:5001/api/partners/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          const settings = data.partner;
+          setLockSettings({ 
+            enabled: settings.app_lock_enabled === 'true', 
+            biometric: settings.biometric_enabled === 'true', 
+            timeout: 30, // Default 30 min for partners
+            pages: (settings.app_lock_pages || '').split(',').filter(Boolean)
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch partner lock settings', err);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  // Check route protection
+  useEffect(() => {
+    if (!lockSettings.enabled || !lockSettings.pages) {
+      setIsLocked(false);
+      return;
+    }
+    
+    const isProtectedRoute = lockSettings.pages.some(r => location.pathname.startsWith(r));
+    
+    if (isProtectedRoute) {
+      const unlockedPaths = JSON.parse(sessionStorage.getItem('partner_unlocked_paths') || '[]');
+      const isPathUnlocked = unlockedPaths.some(p => location.pathname === p || location.pathname.startsWith(p + '/'));
+      
+      if (!isPathUnlocked) {
+        setIsLocked(true);
+      } else {
+        setIsLocked(false);
+      }
+    } else {
+      sessionStorage.removeItem('partner_unlocked_paths');
+      setIsLocked(false);
+    }
+  }, [location.pathname, lockSettings]);
+
+  // Handle inactivity timeout
+  useEffect(() => {
+    if (!lockSettings.enabled || location.pathname === '/partner/login') return;
+
+    let timeoutId;
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      if (isLocked) return;
+      
+      timeoutId = setTimeout(() => {
+        sessionStorage.removeItem('partner_unlocked_paths');
+        setIsLocked(true);
+      }, lockSettings.timeout * 60 * 1000);
+    };
+
+    window.addEventListener('mousemove', resetTimer);
+    window.addEventListener('keydown', resetTimer);
+    window.addEventListener('click', resetTimer);
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('mousemove', resetTimer);
+      window.removeEventListener('keydown', resetTimer);
+      window.removeEventListener('click', resetTimer);
+    };
+  }, [lockSettings, location.pathname, isLocked]);
+
   const handleLogout = () => {
     localStorage.removeItem('partnerToken');
     localStorage.removeItem('partnerData');
+    sessionStorage.removeItem('partnerToken');
+    sessionStorage.removeItem('partner_unlocked_paths');
     window.dispatchEvent(new Event('authChange'));
     window.location.href = '/';
   };
@@ -183,8 +290,22 @@ const PartnerLayout = () => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto scroll-smooth pb-12">
-          <Outlet />
+        <main className="flex-1 overflow-x-hidden overflow-y-auto scroll-smooth pb-12 relative">
+          {isLocked ? (
+            <PartnerLockScreen 
+              biometricEnabled={lockSettings.biometric} 
+              onUnlock={() => {
+                const unlockedPaths = JSON.parse(sessionStorage.getItem('partner_unlocked_paths') || '[]');
+                if (!unlockedPaths.includes(location.pathname)) {
+                  unlockedPaths.push(location.pathname);
+                  sessionStorage.setItem('partner_unlocked_paths', JSON.stringify(unlockedPaths));
+                }
+                setIsLocked(false);
+              }} 
+            />
+          ) : (
+            <Outlet />
+          )}
         </main>
       </div>
     </div>
